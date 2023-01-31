@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+  <link rel="icon" href="{{logo}}" />
+  {{#base}}<base href="/{{.}}" />{{/base}}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{title}}" />
+  <link rel="canonical" href="{{domain}}/{{path}}" />
+  <title>{{title}}</title>
+  {{#banner}}
+  <style>
+    body>div.col-1:nth-of-type(2):before {
+      background-image: url('{{{.}}}');
+    }
+
+    body>div.col-1:nth-of-type(2):after {
+      background-image: url('{{{.}}}');
+    }
+  </style>
+  {{/banner}}
+  {{#stylesheet}}
+  <link rel="stylesheet" href="{{.}}">{{/stylesheet}}
+</head>
+
+<body class="{{classNames}}">
+  {{content}}
+  {{#script}}
+  <script async src="{{.}}"></script>{{/script}}
+</body>
+
+</html>

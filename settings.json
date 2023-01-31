@@ -1,0 +1,16 @@
+[
+  {
+    "domain": "blog.briancullinan.com",
+    "title": "Brian Cullinan's Blog",
+    "logo": "/14657360_10101590924870878_61516874436580927_n.jpg",
+    "banner": "/14352093_10101553456043708_40921959992780880_o.jpg",
+    "stylesheet": "https://fonts.googleapis.com/css?family=Roboto|Space+Mono&display=swap",
+    ":stylesheet": "/bjcullinan-style.css",
+    "script": "/bjcullinan-script.js",
+    ":script": "https://www.googletagmanager.com/gtag/js?id=UA-177219283-2",
+    "template": "./blog/",
+    "repository": "https://github.com/briancullinan2/edit-anywhere/blob/main/blog/",
+    "database": "https://docs.google.com/spreadsheets/d/1GG2R2gYvFrLz4ZoBPA2hgCOrXaKCHavKdUn8j-jkAwQ/edit?usp=sharing",
+    "index": "home"
+  }
+]
