@@ -12,9 +12,13 @@ async function loadContent(req, res, next) {
 		pathname = '/index.html'
 	}
 	const filename = path.join(__dirname, '/docs/', pathname)
-	if (pathname == '/index.html' && !fs.existsSync(filename)) {
+	//if (pathname == '/index.html' && !fs.existsSync(filename)) {
+	try {
 		await renderIndex(pathname)
+	} catch (e) {
+		console.log(e)
 	}
+	//}
 	if (fs.existsSync(filename)) {
 		return res.sendFile(filename)
 	}
