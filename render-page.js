@@ -54,20 +54,50 @@ function matchTemplateVariables(content) {
 async function getTemplateVariables(key, templates) {
   let vars = []
   if (templates[key].data && templates[key].data.spreadsheetId) {
-    templates[key].data.rows = await getRows(templates[key].data)
+    if(!templates[key].data.rows) {
+      templates[key].data.rows = await getRows(templates[key].data)
+    }
     vars = templates[key].data.variables = matchTemplateVariables(templates[key].data.rows)
   }
   if (templates[key].template && templates[key].template.filename) {
-    templates[key].template.rows = fs.readFileSync(templates[key].template.filename, 'utf8').split('\n')
+    if(!templates[key].template.rows) {
+      templates[key].template.rows = fs.readFileSync(templates[key].template.filename, 'utf8').split('\n')
+    }
     vars = templates[key].template.variables = matchTemplateVariables(templates[key].template.rows)
   }
   if (templates[key].template && templates[key].template.spreadsheetId) {
-    templates[key].template.rows = await getRows(templates[key].template)
+    if(!templates[key].template.rows) {
+      templates[key].template.rows = await getRows(templates[key].template)
+    }
     vars = templates[key].template.variables = matchTemplateVariables(templates[key].template.rows)
   }
   return vars
 }
 
+async function renderPage(key, request, templates, variables) {
+  let properties = Object.assign({}, variables, {
+    variables: (variables.variables || []).concat(await getTemplateVariables(key, templates))
+  })
+  if(templates[key].data) {
+    properties[key + '-data'] = templates[key].data.rows
+  }
+
+  for (let i = 0; i < properties.variables.length; i++) {
+    let subkey = properties.variables[i].replace(/-data$/i, '')
+    if(templates[subkey] && typeof properties[subkey] == 'undefined') {
+      properties[subkey] = false
+      properties[subkey] = (await renderPage(subkey, request, templates, properties))[subkey]
+    }
+  }
+
+  if(templates[key].template) {
+    properties[key] = selectDom(['//BODY/*'], 
+      await renderDom(templates[key].template, request, properties))
+        .map(el => el.outerHTML).join('')
+  }
+
+  return properties
+}
 
 async function renderIndex(request) {
   if (typeof request == 'object' && request) {
@@ -88,38 +118,16 @@ async function renderIndex(request) {
     variables: await getTemplateVariables('index', templates)
   }
 
-  let html, template
+  let html
   if (templates[key].template) {
-    if (key == 'index') {
-      properties.variables = properties.variables.concat(await getTemplateVariables(settings.index, templates))
-      template = templates[settings.index].template
+    if (key == 'index' && settings.index) {
+      html = await renderPage(settings.index, request, templates, properties)
+      fs.writeFileSync(path.join(__dirname, '/docs/', key + '.html'), html[settings.index])
     } else {
-      properties.variables = properties.variables.concat(await getTemplateVariables(key, templates))
-      template = templates[key].template
+      html = await renderPage(key, request, templates, properties)
+      fs.writeFileSync(path.join(__dirname, '/docs/', key + '.html'), html[key])
     }
-    for (let i = 0; i < properties.variables.length; i++) {
-      let subkey = properties.variables[i].replace(/-data$/i, '')
-      if(templates[subkey]) {
-        let subprops = {
-          variables: properties.variables.concat(await getTemplateVariables(subkey, templates))
-        }
-        console.log(templates[subkey])
-        if(templates[subkey].data) {
-          properties[subkey + '-data'] = templates[subkey].data.rows
-        }
-        if(templates[subkey].template) {
-          properties[subkey] = selectDom(['//BODY/*'], 
-          await renderDom(templates[subkey].template, request, subprops))
-          .map(el => el.outerHTML).join('')
-        }
-      }
-    }
-    properties.content = selectDom(['//BODY/*'], 
-        await renderDom(template, request, properties))
-        .map(el => el.outerHTML).join('')
-  
-    html = await renderDom(templates['index'].template, request, properties)
-    fs.writeFileSync(path.join(__dirname, '/docs/', key + '.html'), html)
+    // TODO: else if, first in sheet?
   } else {
     html = JSON.stringify(templates[key].data.rows, null, 2)
     fs.writeFileSync(path.join(__dirname, '/docs/', key + '.json'), html)
