@@ -78,15 +78,29 @@ async function renderPage(key, request, templates, variables) {
   let properties = Object.assign({}, variables, {
     variables: (variables.variables || []).concat(await getTemplateVariables(key, templates))
   })
+
   if(templates[key].data) {
-    properties[key + '-data'] = templates[key].data.rows
+    variables[key + '-data'] = properties[key + '-data'] = templates[key].data.rows
   }
 
   for (let i = 0; i < properties.variables.length; i++) {
     let subkey = properties.variables[i].replace(/-data$/i, '')
-    if(templates[subkey] && typeof properties[subkey] == 'undefined') {
+    if(templates[subkey] && typeof properties[subkey] == 'undefined'
+      && (typeof variables[subkey] == 'undefined' || variables[subkey] === false)) {
       properties[subkey] = false
-      properties[subkey] = (await renderPage(subkey, request, templates, properties))[subkey]
+      const template = await renderPage(subkey, request, templates, properties)
+      variables[subkey] = properties[subkey] = template[subkey]
+      variables[subkey+'-data'] = properties[subkey+'-data'] = template[subkey+'-data']
+    }
+    if(properties.variables[i].match(/^[:]+/gi)) {
+      let listVariable = properties.variables[i].replace(/^[:]+/, '')
+      if(typeof properties[listVariable] == 'undefined') {
+        properties[listVariable] = []
+      }
+      if(!Array.isArray(properties[listVariable])) {
+        properties[listVariable] = [properties[listVariable]]
+      }
+      properties[listVariable][properties[listVariable].length] = properties[properties.variables[i]]
     }
   }
 
@@ -114,9 +128,9 @@ async function renderIndex(request) {
   if (typeof templates[key] == 'undefined') {
     throw new Error('Template not found: ' + key)
   }
-  let properties = {
-    variables: await getTemplateVariables('index', templates)
-  }
+  let properties = Object.assign({
+    variables: Object.keys(settings).concat(await getTemplateVariables('index', templates))
+  }, settings)
 
   let html
   if (templates[key].template) {

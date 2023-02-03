@@ -5,6 +5,7 @@
     "generate": "node -e \"require('./index.js').renderIndex()\"",
     "update": "git add -A && git commit -m \"auto-update\" && git push",
     "start": "node -e \"require('./index.js').startServer()\"",
+    "debug": "node --inspect-brk -e \"require('./index.js').startServer()\"",
     "build": "node-gyp rebuild"
   },
   "repository": {

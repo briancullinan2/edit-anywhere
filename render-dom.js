@@ -44,7 +44,6 @@ async function renderDom(template, request, properties) {
   let key = request.split('/')[0]
   let html = template.rows.flat(1).join('\n')
 
-  properties = Object.assign({}, settings, properties)
   console.log(properties)
 
   Mustache.parse(html)
