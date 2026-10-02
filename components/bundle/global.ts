@@ -56,8 +56,8 @@ export const path = {
 	}
 };
 
-export const LONG_NAME = 'Media Server';
-export const SHORT_NAME = '🎬📽️🎞️';
+export const LONG_NAME = 'Edit Anywhere';
+export const SHORT_NAME = '📰';
 buildSelf.LONG_NAME = LONG_NAME;
 buildSelf.SHORT_NAME = SHORT_NAME;
 
