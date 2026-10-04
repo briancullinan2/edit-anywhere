@@ -30,14 +30,14 @@ localSelf.DB_SCHEME = DB_SCHEME;
 /**
  *
  * @param {string | null} dbName
- * @param {number | null} dbVersion
+ * @param {number | boolean | null} dbVersion
  * @returns
  */
 async function getDB(dbName = null, dbVersion = null)
 {
 	return new Promise((rs, rj) =>
 	{
-		const req = indexedDB.open(dbName || DB_NAME, dbVersion || DB_VERSION);
+		const req = indexedDB.open(dbName || DB_NAME, dbVersion === false ? undefined : (typeof dbVersion === 'number' ? dbVersion : DB_VERSION));
 		req.onsuccess = () => rs(req.result);
 		req.onerror = () =>
 		{
@@ -96,7 +96,7 @@ async function needsInstall(dbName, expectedStores)
 {
 	return new Promise((resolve) =>
 	{
-		const request = indexedDB.open(dbName || DB_NAME, DB_VERSION);
+		const request = indexedDB.open(dbName || DB_NAME);
 
 		request.onsuccess = (event) =>
 		{
@@ -211,31 +211,39 @@ localSelf.setupDatabase = setupDatabase;
 async function putRecordInternal(storeName, record, dbName = null)
 {
 	const filePath = dbName + '/' + record.path;
-	const newRecord = {
+	const newRecord = Object.assign({}, record, {
 		timestamp: record.timestamp,
 		mode: record.mode,
 		contents: record.contents,
 		path: record.path,
 		sha: record.sha,
 		parent: record.parent
-	};
+	});
+
 	const newerContents = localSelf.FS?.virtual[filePath]?.contents
 		|| localSelf.FS?.virtual[record.path]?.contents;
-	if(newerContents instanceof ArrayBuffer)
+
+	if(localSelf.FS.virtual[filePath]?.timestamp
+		&& record.timestamp
+		&& localSelf.FS.virtual[filePath]?.timestamp > record.timestamp)
 	{
-		newRecord.contents = new Uint8Array(newerContents);
+		if(newerContents instanceof ArrayBuffer)
+		{
+			newRecord.contents = new Uint8Array(newerContents);
+		}
+		else if(newerContents instanceof Uint8Array)
+		{
+			newRecord.contents = newerContents.slice(0);
+		}
 	}
-	else if(newerContents instanceof Uint8Array)
+
+	if(newRecord.contents instanceof ArrayBuffer)
 	{
-		newRecord.contents = newerContents.slice(0);
+		newRecord.contents = new Uint8Array(newRecord.contents);
 	}
-	else if(record.contents instanceof ArrayBuffer)
+	else if(newRecord.contents instanceof Uint8Array)
 	{
-		newRecord.contents = new Uint8Array(record.contents);
-	}
-	else if(record.contents instanceof Uint8Array)
-	{
-		newRecord.contents = record.contents.slice(0);
+		newRecord.contents = newRecord.contents.slice(0);
 	}
 
 	if(newRecord.path.includes('//') || newRecord.path.includes('http:'))
@@ -252,7 +260,7 @@ async function putRecordInternal(storeName, record, dbName = null)
 		debugger;
 	}
 
-	const db = await getDB(dbName);
+	const db = await getDB(dbName, false);
 	const tx = db.transaction(storeName, 'readwrite');
 	const store = tx.objectStore(storeName);
 	return new Promise((rs, rj) =>
@@ -546,7 +554,7 @@ async function getRecordInternal(storeName, key, dbName = null, dbVersion = 1)
  */
 async function queryIndexInternal(storeName, indexName, exactIndex = null, lower = null, upper = null, dbName = null)
 {
-	const db = await getDB(dbName);
+	const db = await getDB(dbName, false);
 	const tx = db.transaction(storeName, 'readonly');
 	const store = tx.objectStore(storeName);
 	const index = store.index(indexName || store.keyPath);

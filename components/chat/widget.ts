@@ -17,19 +17,23 @@ export type MessageRole = 'user' | 'assistant' | 'system';
 
 export interface IChatMessage
 {
-	id: string;
+	mode: number;
+	path: string;
 	role: MessageRole;
-	content: string;
+	contents: string;
 	timestamp: number;
+	parent?: string;
 }
 
 export interface IThreadMeta
 {
-	id: string;
-	title: string;
-	createdAt: number;
-	lastMessageTime: number;
-	messageCount: number;
+	mode: number;
+	path: string;
+	contents: string;
+	timestamp: number;
+	modified: number;
+	size: number;
+	parent?: string;
 }
 
 export interface IChatWidgetOptions
@@ -49,14 +53,14 @@ export class ChatWidget extends Widget
 	private chatWidget: ChatMessageWidget;
 	private storage: ChatStorageEngine;
 
-	constructor(env = 'development', options: IChatWidgetOptions = {})
+	constructor(env?: string, options: IChatWidgetOptions = {})
 	{
 		super();
 		this.id = 'lumino-chat-manager-panel';
 		this.addClass('lm-ChatManagerPanel');
 
 		// Lumino Title properties for tab managers (DockPanel, TabBar, etc.)
-		this.title.label = 'Chat';
+		this.title.label = 'Curation';
 		this.title.iconClass = 'fa fa-comments';
 		this.title.closable = true;
 
@@ -158,8 +162,8 @@ export class ChatWidget extends Widget
 
 		if(threads.length > 0)
 		{
-			await this.chatWidget.loadThread(threads[0].id);
-			await this.threadListWidget.refresh(threads[0].id);
+			await this.chatWidget.loadThread(threads[0].path);
+			await this.threadListWidget.refresh(threads[0].path);
 		}
 		else
 		{
@@ -190,8 +194,8 @@ export class ChatWidget extends Widget
 			const threads = await this.storage.getAllThreads();
 			if(threads.length > 0)
 			{
-				await this.chatWidget.loadThread(threads[0].id);
-				await this.threadListWidget.refresh(threads[0].id);
+				await this.chatWidget.loadThread(threads[0].path);
+				await this.threadListWidget.refresh(threads[0].path);
 			}
 			else
 			{
@@ -203,7 +207,7 @@ export class ChatWidget extends Widget
 		// Chat Updates -> Refresh List
 		this.chatWidget.threadUpdated.connect(async (_, meta) =>
 		{
-			await this.threadListWidget.refresh(meta.id);
+			await this.threadListWidget.refresh(meta.path);
 		});
 	}
 }

@@ -38,7 +38,7 @@ export class ChatMessageWidget extends Widget
 		super();
 		this.storage = storage;
 		this.modelName = options.modelName || 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
-		this.workerUrl = options.workerUrl || './worker.js';
+		this.workerUrl = options.workerUrl || '/components/chat/chat-worker.mjs';
 
 		this.id = 'lumino-chat-widget';
 		this.title.label = 'Chat';
@@ -158,22 +158,24 @@ export class ChatMessageWidget extends Widget
 	public async loadThread(threadId: string): Promise<void>
 	{
 		const threads = await this.storage.getAllThreads();
-		let meta = threads.find((t) => t.id === threadId);
+		let meta = threads.find((t) => t.path === threadId);
 
 		if(!meta)
 		{
 			meta = {
-				id: threadId,
-				title: 'New Conversation',
-				createdAt: Date.now(),
-				lastMessageTime: Date.now(),
-				messageCount: 0,
+				mode: (0o100000 | 0o666),
+				path: threadId,
+				contents: 'New Conversation',
+				timestamp: Date.now(),
+				modified: Date.now(),
+				size: 0,
+				parent: ''
 			};
 			await this.storage.saveThreadMeta(meta);
 		}
 
 		this.currentThread = meta;
-		this.title.label = meta.title;
+		this.title.label = meta.contents;
 		this.messages = await this.storage.getMessages(threadId);
 		this.renderMessages();
 	}
@@ -222,7 +224,7 @@ export class ChatMessageWidget extends Widget
 			body.style.whiteSpace = 'pre-wrap';
 			body.style.wordBreak = 'break-word';
 			body.style.fontSize = '14px';
-			body.innerText = msg.content;
+			body.innerText = msg.contents;
 
 			// Action Bar
 			const actions = document.createElement('div');
@@ -231,7 +233,7 @@ export class ChatMessageWidget extends Widget
 			actions.style.gap = '8px';
 			actions.style.fontSize = '11px';
 
-			const copyBtn = this.createActionButton('Copy', () => navigator.clipboard.writeText(msg.content));
+			const copyBtn = this.createActionButton('Copy', () => navigator.clipboard.writeText(msg.contents));
 			const editBtn = this.createActionButton('Edit', () => this.handleEditMessage(i));
 			const deleteBtn = this.createActionButton('Delete', () => this.handleDeleteMessage(i));
 
@@ -289,14 +291,16 @@ export class ChatMessageWidget extends Widget
 		}
 
 		const userMsg: IChatMessage = {
-			id: `msg_${Date.now()}`,
+			mode: (0o100000 | 0o666),
+			path: `msg_${Date.now()}`,
 			role: 'user',
-			content: text,
+			contents: text,
 			timestamp: Date.now(),
+			parent: this.currentThread?.path
 		};
 
 		this.messages.push(userMsg);
-		await this.storage.saveMessage(this.currentThread!.id, userMsg);
+		await this.storage.saveMessage(this.currentThread!.path, userMsg);
 		await this.updateMetadata();
 
 		this.renderMessages();
@@ -314,10 +318,12 @@ export class ChatMessageWidget extends Widget
 		}
 
 		const assistantMsg: IChatMessage = {
-			id: `msg_${Date.now()}`,
+			mode: (0o100000 | 0o666),
+			path: `msg_${Date.now()}`,
 			role: 'assistant',
-			content: '',
+			contents: '',
 			timestamp: Date.now(),
+			parent: this.currentThread?.path
 		};
 
 		this.messages.push(assistantMsg);
@@ -326,8 +332,8 @@ export class ChatMessageWidget extends Widget
 		try
 		{
 			const apiMessages = this.messages
-				.filter((m) => m.content.length > 0)
-				.map((m) => ({ role: m.role, content: m.content }));
+				.filter((m) => m.contents.length > 0)
+				.map((m) => ({ role: m.role, content: m.contents }));
 
 			const chunks = await this.engine.chat.completions.create({
 				messages: apiMessages,
@@ -337,23 +343,23 @@ export class ChatMessageWidget extends Widget
 			for await(const chunk of chunks)
 			{
 				const delta = chunk.choices[0]?.delta?.content || '';
-				assistantMsg.content += delta;
+				assistantMsg.contents += delta;
 				this.renderMessages();
 			}
 
 			// Save complete message instantly to IDB
-			await this.storage.saveMessage(this.currentThread.id, assistantMsg);
+			await this.storage.saveMessage(this.currentThread.path, assistantMsg);
 			await this.updateMetadata();
 
 			// Trigger parallel Title Generation if thread title is default
-			if(this.currentThread.title === 'New Conversation' || this.currentThread.title === 'Untitled Thread')
+			if(this.currentThread.contents === 'New Conversation' || this.currentThread.contents === 'Untitled Thread')
 			{
 				this.generateTitleQuickly();
 			}
 		} catch(err: any)
 		{
-			assistantMsg.content += `\n[Error: ${err.message || err}]`;
-			await this.storage.saveMessage(this.currentThread.id, assistantMsg);
+			assistantMsg.contents += `\n[Error: ${err.message || err}]`;
+			await this.storage.saveMessage(this.currentThread.path, assistantMsg);
 		} finally
 		{
 			this.isGenerating = false;
@@ -370,7 +376,7 @@ export class ChatMessageWidget extends Widget
 
 		try
 		{
-			const firstUserMsg = this.messages.find((m) => m.role === 'user')?.content || '';
+			const firstUserMsg = this.messages.find((m) => m.role === 'user')?.contents || '';
 			const response = await this.engine.chat.completions.create({
 				messages: [
 					{
@@ -385,7 +391,7 @@ export class ChatMessageWidget extends Widget
 			const title = response.choices[0]?.message?.content?.trim().replace(/^["']|["']$/g, '');
 			if(title)
 			{
-				this.currentThread.title = title;
+				this.currentThread.contents = title;
 				this.title.label = title;
 				await this.storage.saveThreadMeta(this.currentThread);
 				this.threadUpdated.emit(this.currentThread);
@@ -399,11 +405,11 @@ export class ChatMessageWidget extends Widget
 	private async handleEditMessage(index: number): Promise<void>
 	{
 		const msg = this.messages[index];
-		const updated = prompt('Edit message:', msg.content);
-		if(updated !== null && updated.trim() !== msg.content)
+		const updated = prompt('Edit message:', msg.contents);
+		if(updated !== null && updated.trim() !== msg.contents)
 		{
-			msg.content = updated.trim();
-			await this.storage.saveMessage(this.currentThread!.id, msg);
+			msg.contents = updated.trim();
+			await this.storage.saveMessage(this.currentThread!.path, msg);
 			this.renderMessages();
 		}
 	}
@@ -412,7 +418,7 @@ export class ChatMessageWidget extends Widget
 	{
 		const msg = this.messages[index];
 		this.messages.splice(index, 1);
-		await this.storage.deleteMessage(this.currentThread!.id, msg.id);
+		await this.storage.deleteMessage(this.currentThread!.path, msg.path);
 		await this.updateMetadata();
 		this.renderMessages();
 	}
@@ -423,7 +429,7 @@ export class ChatMessageWidget extends Widget
 		// Truncate messages down to the selected user message
 		const truncated = this.messages.slice(0, index + 1);
 		this.messages = truncated;
-		await this.storage.saveAllMessages(this.currentThread!.id, this.messages);
+		await this.storage.saveAllMessages(this.currentThread!.path, this.messages);
 		await this.updateMetadata();
 		this.renderMessages();
 		await this.generateAssistantResponse();
@@ -432,8 +438,8 @@ export class ChatMessageWidget extends Widget
 	private async updateMetadata(): Promise<void>
 	{
 		if(!this.currentThread) return;
-		this.currentThread.messageCount = this.messages.length;
-		this.currentThread.lastMessageTime = Date.now();
+		this.currentThread.size = this.messages.length;
+		this.currentThread.modified = Date.now();
 		await this.storage.saveThreadMeta(this.currentThread);
 		this.threadUpdated.emit(this.currentThread);
 	}

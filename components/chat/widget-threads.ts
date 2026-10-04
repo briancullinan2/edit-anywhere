@@ -8,6 +8,10 @@ import { Widget } from "@lumino/widgets";
 import type { ChatStorageEngine } from "./widget-storage";
 import { Signal } from "@lumino/signaling";
 import type { IThreadMeta } from "./widget";
+import { Message } from "@lumino/messaging";
+import type { LuminoLayoutWindow } from "../bundle/lumino.d";
+
+const threadsSelf: LuminoLayoutWindow = self as unknown as any;
 
 export class ThreadListWidget extends Widget
 {
@@ -27,11 +31,26 @@ export class ThreadListWidget extends Widget
 		this.storage = storage;
 		this.id = 'lumino-thread-list-widget';
 		this.title.label = 'Threads';
-		this.title.closable = false;
+		this.title.closable = true;
 
 		this.addClass('lm-ThreadListWidget');
 		this.buildDOM();
 	}
+
+	public processMessage(msg: Message): void
+	{
+		if(msg.type === 'close-request')
+		{
+			console.log('Intercepted close request, hiding instead: ' + this.title.label);
+
+			this.hide();
+			threadsSelf.mainDock?.layout?.removeWidget(this);
+			return; // BAIL OUT: Avoid calling super.processMessage() to prevent disposal
+		}
+
+		super.processMessage(msg);
+	}
+
 
 	private buildDOM(): void
 	{
@@ -51,9 +70,9 @@ export class ThreadListWidget extends Widget
 		header.style.justifyContent = 'space-between';
 		header.style.alignItems = 'center';
 
-		const title = document.createElement('span');
-		title.innerText = 'Conversations';
-		title.style.fontWeight = 'bold';
+		// const title = document.createElement('span');
+		// title.innerText = 'Conversations';
+		// title.style.fontWeight = 'bold';
 
 		const newBtn = document.createElement('button');
 		newBtn.innerText = '+ New Thread';
@@ -65,7 +84,7 @@ export class ThreadListWidget extends Widget
 		newBtn.style.cursor = 'pointer';
 		newBtn.onclick = () => this.newThreadRequested.emit();
 
-		header.appendChild(title);
+		// header.appendChild(title);
 		header.appendChild(newBtn);
 		this.node.appendChild(header);
 
@@ -113,7 +132,7 @@ export class ThreadListWidget extends Widget
 			item.style.justifyContent = 'space-between';
 			item.style.alignItems = 'center';
 
-			if(thread.id === this.activeThreadId)
+			if(thread.path === this.activeThreadId)
 			{
 				item.style.backgroundColor = '#37373d';
 			} else
@@ -127,14 +146,14 @@ export class ThreadListWidget extends Widget
 			infoDiv.style.flex = '1';
 
 			const tTitle = document.createElement('div');
-			tTitle.innerText = thread.title || 'Untitled Thread';
+			tTitle.innerText = thread.contents || 'Untitled Thread';
 			tTitle.style.fontWeight = '500';
 			tTitle.style.whiteSpace = 'nowrap';
 			tTitle.style.overflow = 'hidden';
 			tTitle.style.textOverflow = 'ellipsis';
 
 			const sub = document.createElement('div');
-			sub.innerText = `${thread.messageCount} msgs • ${new Date(thread.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+			sub.innerText = `${thread.size} msgs • ${new Date(thread.modified).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 			sub.style.fontSize = '11px';
 			sub.style.color = '#888';
 			sub.style.marginTop = '4px';
@@ -152,14 +171,14 @@ export class ThreadListWidget extends Widget
 			delBtn.onclick = (e) =>
 			{
 				e.stopPropagation();
-				this.threadDeleted.emit(thread.id);
+				this.threadDeleted.emit(thread.path);
 			};
 
 			item.onclick = () =>
 			{
-				this.activeThreadId = thread.id;
+				this.activeThreadId = thread.path;
 				this.render();
-				this.threadSelected.emit(thread.id);
+				this.threadSelected.emit(thread.path);
 			};
 
 			item.appendChild(infoDiv);
