@@ -175,6 +175,8 @@ html {
 	min-width: 0;
 }
 
+.lm-TabBar-tab>.lm-TabBar-tabIcon.bi,
+.lm-TabBar-tab>.lm-TabBar-tabIcon.fa,
 .lm-TabBar-tab>.lm-TabBar-tabIcon.bx {
 	margin-right: 8px;
 }

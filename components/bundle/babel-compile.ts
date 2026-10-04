@@ -63,6 +63,12 @@ export function collectDependencies(rawCode: string, baseRoute: string, dependen
 			} else if(moduleName === 'd3')
 			{
 				newDependency = '/components/status/d3.min.js';
+			} else if(moduleName === 'fabric')
+			{
+				newDependency = '/components/writer/fabric.min.js';
+			} else if(moduleName === 'marked')
+			{
+				newDependency = '/components/writer/marked.umd.js';
 			} else if(moduleName === '@mlc-ai/web-llm')
 			{
 				newDependency = '/components/chat/mlc.mjs';
@@ -450,6 +456,12 @@ export function transpileTypescriptWidget(rawCode: string, baseRoute: string): a
 								} else if(moduleName === '@lumino/commands')
 								{
 									path.replaceWithSourceString('window.Lumino.commands');
+								} else if(moduleName === 'marked')
+								{
+									path.replaceWithSourceString('window');
+								} else if(moduleName === 'fabric')
+								{
+									path.replaceWithSourceString('window.fabric');
 								} else if(moduleName === './tree.js')
 								{
 									path.replaceWithSourceString('window.Tree');
@@ -505,6 +517,15 @@ export function transpileTypescriptWidget(rawCode: string, baseRoute: string): a
 								globalExpression = t.memberExpression(
 									t.identifier('window'),
 									t.identifier('ace')
+								);
+							} else if(moduleName === 'marked')
+							{
+								globalExpression = t.identifier('window');
+							} else if(moduleName === 'fabric')
+							{
+								globalExpression = t.memberExpression(
+									t.identifier('window'),
+									t.identifier('fabric')
 								);
 							} else if(moduleName === './tree.js')
 							{

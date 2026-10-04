@@ -50,8 +50,8 @@ export interface ComponentRoute
 // 1. Unified metadata tree tracking every panel type and icon token
 export const MODULE_REGISTRY: Record<string, ComponentRoute> = {
 	'collapse': { label: 'Collapse', iconClass: 'bx bx-arrow-in-left-square-half' },
-	'content': { label: 'Content Editor', url: './components/content/widget.ts', className: 'ContentWidget', iconClass: 'bx bx-code' },
-	'scroll': { label: 'Layout Manager', url: './components/content/widget-layout.ts', className: 'LayoutWidget', iconClass: 'bx bx-scroll' },
+	'writer': { label: 'Content Writer', url: './components/writer/widget.ts', className: 'WriterWidget', iconClass: 'bx bx-code-alt' },
+	'scroll': { label: 'Layout Manager', url: './components/template/widget.ts', className: 'TemplateWidget', iconClass: 'bx bx-scroll' },
 	'theme': { label: 'Theme Writer', url: './components/content/widget-theme.ts', className: 'ThemeWidget', iconClass: 'bx bx-brightness-half' },
 	'database': { label: 'Secure Storage', url: './components/filelist/widget-database.ts', className: 'DatabaseListWidget', iconClass: 'bx bx-database' },
 	//'analytics': { label: 'Analytics', url: './components/analytics/widget.ts', className: 'AnalyticsWidget', iconClass: 'bx bx-chart-trend' },
