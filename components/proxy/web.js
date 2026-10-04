@@ -1,9 +1,9 @@
-// @ts-check
 /// <reference types="node" />
+// @ts-check
 
 const fs = require('fs');
 const path = require('path');
-const { removableStorageMiddleware } = require('../art/middleware');
+const Stream = require('stream');
 const GAME_DIRECTORY = 'demoq3';
 const WEB_DIRECTORY = path.resolve(__dirname + '/../../');
 const ASSETS_DIRECTORY = path.resolve(__dirname + '/../../' + GAME_DIRECTORY + '/pak0.pk3dir/');
@@ -35,9 +35,15 @@ const MENU_PATHS = [
 	'PLAYERSETTINGS',
 ];
 
+/** @type {ReturnType<typeof setTimeout> | undefined} */
 let fileTimeout;
 let latestMtime = new Date();
 
+/**
+ *
+ * @param {string} filename
+ * @returns {string | undefined}
+ */
 function findFile(filename)
 {
 	// layer the file system, so no matter what we're building, the browser loads something
@@ -80,6 +86,13 @@ function findFile(filename)
 
 // okay this function is apparently a little idiotic and triggers on accesses
 //   this is not how native notify works, but maybes it's the best they could make the same
+/**
+ *
+ * @param {string} prefix
+ * @param {string} eventType
+ * @param {string} filename
+ * @returns
+ */
 function fileChanged(prefix, eventType, filename)
 {
 	if(filename.includes('version.json'))
@@ -112,7 +125,11 @@ function startFileWatcher()
 
 }
 
-
+/**
+ *
+ * @param {string} localName
+ * @returns {string | undefined}
+ */
 function findAltImage(localName)
 {
 	// what makes this clever is it only converts when requested
@@ -134,6 +151,11 @@ function findAltImage(localName)
 }
 
 
+/**
+ *
+ * @param {string} localName
+ * @returns {string | undefined}
+ */
 function findAltAudio(localName)
 {
 	// what makes this clever is it only converts when requested
@@ -154,6 +176,11 @@ function findAltAudio(localName)
 	}
 }
 
+/**
+ *
+ * @param {string} otherFormatName
+ * @returns {boolean}
+ */
 function hasAlpha(otherFormatName)
 {
 	const { spawnSync } = require('child_process');
@@ -172,17 +199,28 @@ function hasAlpha(otherFormatName)
 		//console.log(alphaProcess.stderr.toString('utf-8'))
 	} catch(e)
 	{
-		console.error(e.message, (e.output || '').toString('utf-8').substr(0, 1000));
+		if(e instanceof Error)
+		{
+			/** @type {any} */
+			const k = e;
+			console.error(e.message, (k.output ?? '').toString('utf-8').substr(0, 1000));
+		}
 	}
 
 	//const MATCH = /false/ig
 	const MATCH = /'0'|'255'/ig;
-	return !alphaCmd.match(MATCH);
+	return !Boolean(alphaCmd?.match(MATCH));
 }
 
 
+/**
+ *
+ * @param {string} filename
+ * @returns {string[]}
+ */
 function layeredDir(filename)
 {
+	/** @type {string[]} */
 	let list = [];
 
 	for(let i = 0; i < BUILD_ORDER.length; i++)
@@ -234,12 +272,12 @@ function layeredDir(filename)
 		list.push.apply(list, fs.readdirSync(path.resolve(newPath)));
 	}
 
-	if(layeredDir == GAME_DIRECTORY)
+	if(filename == GAME_DIRECTORY)
 	{
 		list.push('version.json');
 	}
 
-	return list.reduce((list, i) =>
+	return list.reduce((/** @type {string[]} */ list, i) =>
 	{
 		if(i.endsWith('.pcx') || i.endsWith('.tga'))
 		{
@@ -264,6 +302,12 @@ function layeredDir(filename)
 }
 
 
+/**
+ *
+ * @param {string} localName
+ * @param {string[]} list
+ * @returns
+ */
 function makeDirectoryHtml(localName, list)
 {
 	let filelist = list.map(node =>
@@ -291,6 +335,10 @@ ${filelist}
 }
 
 
+/**
+ *
+ * @param {Date} time
+ */
 function writeVersionFile(time)
 {
 	console.log('Updating working directory...');
@@ -320,6 +368,12 @@ function writeVersionFile(time)
 
 const MATCH_PALETTE = /palette\s"(.*?)"\s([0-9]+(,[0-9]+)*)/ig;
 
+/**
+ *
+ * @param {string} localName
+ * @param {express.Response} response
+ * @returns
+ */
 function makePaletteShader(localName, response)
 {
 	const { execSync } = require('child_process');
@@ -342,6 +396,7 @@ function makePaletteShader(localName, response)
 		shaderPath = path.join(ASSETS_DIRECTORY, shaderPath);
 	}
 	let images = findTypes(imageTypes, pk3dir);
+	/** @type {Record<string, string>} */
 	let palette = {};
 	let existingPalette = '';
 	if(fs.existsSync(shaderPath))
@@ -363,11 +418,16 @@ function makePaletteShader(localName, response)
 			// get average image color for palette
 			try
 			{
-				colorCmd = execSync(`convert "${images[i]}" -resize 1x1\! -format "%[fx:int(255*a+.5)],%[fx:int(255*r+.5)],%[fx:int(255*g+.5)],%[fx:int(255*b+.5)]" info:-`, { stdio: 'pipe' }).toString('utf-8');
+				let colorCmd = execSync(`convert "${images[i]}" -resize 1x1\! -format "%[fx:int(255*a+.5)],%[fx:int(255*r+.5)],%[fx:int(255*g+.5)],%[fx:int(255*b+.5)]" info:-`, { stdio: 'pipe' }).toString('utf-8');
 				palette[newPath] = colorCmd;
 			} catch(e)
 			{
-				console.error(e.message, (e.output || '').toString('utf-8').substr(0, 1000));
+				if(e instanceof Error)
+				{
+					/** @type {any} */
+					let k = e;
+					console.error(e.message, (k.output ?? '').toString('utf-8').substr(0, 1000));
+				}
 			}
 		}
 	}
@@ -384,8 +444,14 @@ function makePaletteShader(localName, response)
 
 /** @type {import('zlib')} */
 let zlib;
-/** @type {import('mime')} */
+/** @type {import('mime').Mime} */
 let mime;
+/**
+ *
+ * @param {string} file
+ * @param {express.Response} res
+ * @param {string[] | string} acceptEncoding
+ */
 async function sendCompressed(file, res, acceptEncoding)
 {
 	const turnOffCompression = true;
@@ -402,6 +468,7 @@ async function sendCompressed(file, res, acceptEncoding)
 			'application/octet-stream': ['pk3']
 		});
 	}
+	/** @type {Stream} */
 	let readStream = fs.createReadStream(file);
 	res.setHeader('cache-control', 'public, max-age=31557600');
 	res.setHeader('content-type', mime.getType(file) ?? 'application/octet-stream');
@@ -411,7 +478,7 @@ async function sendCompressed(file, res, acceptEncoding)
 		res.append('content-encoding', 'br');
 		if(fs.existsSync(file + '.br'))
 		{
-			res.append('content-length', fs.statSync(file + '.br').size);
+			res.append('content-length', fs.statSync(file + '.br').size + '');
 			readStream = fs.createReadStream(file + '.br');
 		} else
 		{
@@ -422,7 +489,7 @@ async function sendCompressed(file, res, acceptEncoding)
 		res.append('content-encoding', 'gzip');
 		if(fs.existsSync(file + '.gz'))
 		{
-			res.append('content-length', fs.statSync(file + '.gz').size);
+			res.append('content-length', fs.statSync(file + '.gz').size + '');
 			readStream = fs.createReadStream(file + '.gz');
 		} else
 		{
@@ -433,7 +500,7 @@ async function sendCompressed(file, res, acceptEncoding)
 		res.append('content-encoding', 'deflate');
 		if(fs.existsSync(file + '.df'))
 		{
-			res.append('content-length', fs.statSync(file + '.df').size);
+			res.append('content-length', fs.statSync(file + '.df').size + '');
 			readStream = fs.createReadStream(file + '.df');
 		} else
 		{
@@ -441,14 +508,19 @@ async function sendCompressed(file, res, acceptEncoding)
 		}
 	} else
 	{
-		res.append('content-length', fs.statSync(file).size);
+		res.append('content-length', fs.statSync(file).size + '');
 	}
 
 	readStream.pipe(res);
 }
 
 //let fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-
+/**
+ *
+ * @param {express.Request} request
+ * @param {express.Response} response
+ * @returns
+ */
 async function respondRequest(request, response)
 {
 	const { execSync } = require('child_process');
@@ -489,7 +561,7 @@ async function respondRequest(request, response)
 	if((file = findFile(localName)))
 	{
 		const ext = path.extname(file).toLowerCase();
-		if(customMimeTypes[ext])
+		if(typeof customMimeTypes[ext] === 'string')
 		{
 			response.setHeader('Content-Type', customMimeTypes[ext]);
 		}
@@ -588,6 +660,13 @@ async function respondRequest(request, response)
 	}
 
 }
+/**
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {Function} next
+ * @returns
+ */
 
 function middleware(req, res, next)
 {
@@ -614,6 +693,7 @@ function middleware(req, res, next)
 	next();
 }
 
+/** @type {Record<string, string>} */
 const customMimeTypes = {
 	'.wasm': 'application/wasm',
 	'.pk3': 'application/octet-stream',
@@ -624,7 +704,7 @@ const customMimeTypes = {
 let noFS = false;
 let runServer = false;
 let forwardIP = '';
-let httpPort = 8040;
+let httpPort = 4000;
 let masterPort = 27950;
 console.log(process.argv);
 for(let i = 0; i < process.argv.length; i++)
@@ -734,36 +814,44 @@ if(runServer)
 
 	if(!noFS)
 	{
-		app.use(removableStorageMiddleware);
+		//app.use(removableStorageMiddleware);
 		app.use(respondRequest);
 	}
 
 	// ==========================================
 	// 2. EXPRESS 4-ARGUMENT ERROR HANDLER
 	// ==========================================
-	app.use((err, req, res, next) =>
-	{
-		const status = err.status || err.statusCode || 500;
-		console.error(
-			`[Worker ${process.pid}] \x1b[31m[ERROR ${status}]\x1b[0m ${req.method} ${req.originalUrl || req.url}:`,
-			err.message || err
-		);
 
-		if(err.stack)
+	app.use(
+		/**
+		 * @param {express.} err
+		 * @param {express.Request} req
+		 * @param {express.Response} res
+		 * @param {Function} next
+		 */
+		function (err, req, res, next)
 		{
-			console.error(err.stack);
-		}
+			const status = err.status || err.statusCode || 500;
+			console.error(
+				`[Worker ${process.pid}] \x1b[31m[ERROR ${status}]\x1b[0m ${req.method} ${req.originalUrl || req.url}:`,
+				err.message || err
+			);
 
-		if(!res.headersSent)
-		{
-			res.status(status).json({
-				error: true,
-				status,
-				message: err.message || 'Internal Server Error',
-				path: req.originalUrl || req.url
-			});
-		}
-	});
+			if(err.stack)
+			{
+				console.error(err.stack);
+			}
+
+			if(!res.headersSent)
+			{
+				res.status(status).json({
+					error: true,
+					status,
+					message: err.message || 'Internal Server Error',
+					path: req.originalUrl || req.url
+				});
+			}
+		});
 
 	let socks = new Server({ forwardIP });
 	let httpServer = http.createServer(app);

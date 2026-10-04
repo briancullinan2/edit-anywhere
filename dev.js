@@ -2,7 +2,6 @@ const liveServer = require("live-server");
 const cluster = require("cluster");
 const os = require("os");
 const config = require('./tsconfig.json');
-const { removableStorageMiddleware } = require('./components/art/middleware');
 
 // --- MULTI-THREADING (CONCURRENCY) FORK ---
 // This acts like PHP's built-in server by spawning worker processes
@@ -66,7 +65,7 @@ if(cluster.isPrimary)
 		// This stops live-server/chokidar from crawling these directories entirely.
 		ignore: config.exclude,
 
-		middleware: [middleware, removableStorageMiddleware]
+		middleware: [middleware]
 	};
 
 	liveServer.start(params);

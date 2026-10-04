@@ -4,12 +4,13 @@ import { MenuConfig, MenuManager } from "./menu-manager";
 import type { GlobalToolbarsWindow, LuminoMenuWindow } from "./menu.d";
 import type { EditorWindow } from "../editor/widget.d";
 import type { FileSystemWindow, LuminoLayoutWindow } from "./lumino.d";
-import type { ViewMode } from "../art/widget";
 
 type ExtendedWindow = LuminoMenuWindow & FileSystemWindow & LuminoLayoutWindow
 	& GlobalToolbarsWindow & EditorWindow;
 
 const menuSelf: ExtendedWindow = self as unknown as any;
+
+export type ViewMode = 'carousel' | 'overflow' | 'grid' | 'details' | 'tree' | 'music' | string;
 
 export const VIEW_MENU: MenuConfig = {
 	name: "View",
