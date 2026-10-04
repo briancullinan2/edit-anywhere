@@ -158,6 +158,8 @@ export async function preloadDependencies(dependenciesToFetch: string[]): Promis
 		if(existingPromise)
 		{
 			console.log('Skipping, already preloaded: ' + url);
+			// circular dependencies
+			//allPromises.push(existingPromise);
 			continue;
 		}
 
@@ -186,6 +188,7 @@ export async function preloadDependencies(dependenciesToFetch: string[]): Promis
 	console.log('Finishing bullshit: ' + JSON.stringify(dependenciesToFetch));
 }
 
+compileSelf.preloadDependencies = preloadDependencies;
 compileSelf.loadScript = loadScript;
 
 
@@ -343,7 +346,7 @@ export async function fetchTranspileAndStore(baseRoute: string, dependenciesToFe
 		return targetUrl;
 	} else
 	{
-		console.log('Transpiling and saving: ' + targetUrl);
+		console.log('Transpiling: ' + targetUrl);
 	}
 
 	const response = await fetch(baseRoute + '?t=' + Date.now());
@@ -367,6 +370,7 @@ export async function fetchTranspileAndStore(baseRoute: string, dependenciesToFe
 	// Direct the target URL from .ts to .js for the Service Worker's consumption
 	const editorDatabase = SettingsManager.get('github', 'environmentRepository');
 
+	console.log('Saving: ' + targetUrl);
 	// Commit the compiled asset to your service worker pipeline
 	await putRecord(DB_STORE_NAME, {
 		timestamp: new Date(),

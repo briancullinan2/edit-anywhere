@@ -2,11 +2,12 @@ const liveServer = require("live-server");
 const cluster = require("cluster");
 const os = require("os");
 const config = require('./tsconfig.json');
+const { removableStorageMiddleware } = require('./components/art/middleware');
 
 // --- MULTI-THREADING (CONCURRENCY) FORK ---
 // This acts like PHP's built-in server by spawning worker processes
 // across your CPU cores to handle heavy HTTP request loads concurrently.
-if(cluster.isMaster)
+if(cluster.isPrimary)
 {
 	const numCPUs = Math.min(os.cpus().length, 4); // Cap at 4 workers max for dev
 	console.log(`[Master] Spawning ${numCPUs} concurrent server workers...`);
@@ -65,7 +66,7 @@ if(cluster.isMaster)
 		// This stops live-server/chokidar from crawling these directories entirely.
 		ignore: config.exclude,
 
-		middleware: [middleware]
+		middleware: [middleware, removableStorageMiddleware]
 	};
 
 	liveServer.start(params);

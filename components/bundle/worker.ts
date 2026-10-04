@@ -11,10 +11,10 @@ import
 	, putRecord, setupDatabase
 } from "./local";
 import { FileRecord } from './local.d';
-import type { FileSystemWindow } from "./lumino.d";
+import type { FileSystemWindow, LuminoLayoutWindow } from "./lumino.d";
 import { SettingsManager } from "./settings";
 
-const workerSelf: FileSystemWindow = self as unknown as any;
+const workerSelf: FileSystemWindow & LuminoLayoutWindow = self as unknown as any;
 
 export class ServiceWorkerManager
 {
@@ -51,6 +51,7 @@ export class ServiceWorkerManager
 			});
 
 			// Ask the active SW to take control via postMessage
+			workerSelf.splashScreen?.setStatus('Reclaiming Service');
 			registration.active.postMessage({ type: 'CLAIM_CLIENTS' });
 
 			await controlledPromise;
@@ -152,67 +153,106 @@ export class ServiceWorkerManager
 	{
 		if(!serverVersion || !registration.active) return;
 
+		workerSelf.splashScreen?.setStatus('Verifying Service...');
 		const swVersion = await this.queryWorkerValue(registration.active, 'GET_VERSION', 'VERSION_REPORT', 'version');
 
 		if(swVersion && new Date(serverVersion).getTime() !== new Date(swVersion).getTime())
 		{
 			console.warn(`Version Mismatch! Server: ${serverVersion}, SW: ${swVersion}. Unregistering...`);
 			await this.queryWorkerValue(registration.active, 'DEREGISTER', 'DEREGISTERED');
+			workerSelf.splashScreen?.setStatus('Service Stale');
 		} else
 		{
 			console.warn('Skipping Service-Worker because: ' + serverVersion + ' reg: ' + registration + ' active: ' + registration?.active);
 		}
 	}
 
+
 	/**
-	 * Micro-function: Generic async postMessage / MessageChannel polling router interface
+	 * Micro-function: Generic async postMessage / MessageChannel router interface
 	 */
-	private queryWorkerValue(worker: ServiceWorker, msgType: string, expectedAckType: string, dataKey?: string): Promise<any>
+	private queryWorkerValue(
+		worker: ServiceWorker,
+		msgType: string,
+		expectedAckType: string,
+		dataKey?: string
+	): Promise<any>
 	{
-		return new Promise((resolve) =>
-		{
-			let resolved = false;
-			const messageChannel = new MessageChannel();
-
-			messageChannel.port1.onmessage = (event) =>
+		let resolved = false;
+		return Promise.race([
+			new Promise((_, reject) => setTimeout(() => reject(new Error('IDB_TIMEOUT')), 3000)),
+			new Promise((resolve) =>
 			{
-				if(event.data?.type === expectedAckType)
-				{
-					resolved = true;
-					clearInterval(pollInterval);
+				const messageChannel = new MessageChannel();
+				const { port1, port2 } = messageChannel;
 
-					if(dataKey && event.data[dataKey])
+				// Set up single timeout timer instead of 100ms interval polling
+				// const timeoutId = setTimeout(() =>
+				// {
+				// 	if(resolved) return;
+				// 	resolved = true;
+				// 	port1.close();
+				// 	console.warn(`SW transaction timeout reached for command: [${msgType}]`);
+				// 	resolve(null);
+				// }, 3000);
+
+				port1.onmessage = (event) =>
+				{
+					if(resolved) return;
+
+					const data = event.data;
+
+					if(data?.type === expectedAckType)
 					{
-						try { resolve(new Date(event.data[dataKey])); } catch { resolve(null); }
-					} else
-					{
-						resolve(true);
+						resolved = true;
+						// clearTimeout(timeoutId);
+						port1.close(); // Clean up port resource
+
+						if(dataKey && data[dataKey] !== undefined)
+						{
+							try
+							{
+								resolve(new Date(data[dataKey]));
+							} catch
+							{
+								resolve(null);
+							}
+						} else
+						{
+							resolve(true);
+						}
+						return;
 					}
-				}
-			};
 
-			worker.postMessage({ type: msgType, shutup: true }, [messageChannel.port2]);
+					if(data?.type === 'PROGRESS')
+					{
+						// clearTimeout(timeoutId);
+						if(data.percent === 100)
+						{
+							workerSelf.splashScreen?.setProgress(100, 'Service Ready!');
+						} else
+						{
+							workerSelf.splashScreen?.setProgress(
+								data.percent,
+								`Fetching ${data.loaded}/${data.total} ${data.previous}...`
+							);
+						}
+					}
+				};
 
-			const startTime = Date.now();
-			const pollInterval = setInterval(() =>
-			{
-				if(resolved) return;
-
-				if(Date.now() - startTime > 10000)
-				{
-					clearInterval(pollInterval);
-					console.warn(`SW transaction timeout reached on pathway assignment: [${msgType}]`);
-					resolve(null);
-				}
-			}, 100);
-		});
+				// Transfer port2 to the Service Worker
+				worker.postMessage({ type: msgType, shutup: true }, [port2]);
+			})
+		]);
 	}
+
 
 	/**
 	 * Step 4: Registers a fresh Service Worker script file stream
 	 */
 	private async registerNewWorker(): Promise<ServiceWorkerRegistration | undefined>
 	{
+		workerSelf.splashScreen?.setStatus('Registering Service');
 		const swUrl = `/service-worker.js?t=${Date.now()}`;
 		try
 		{

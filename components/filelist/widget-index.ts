@@ -5,22 +5,27 @@ import type { GlobalToolbarsWindow } from "../bundle/menu.d";
 import type { GithubWindow } from "../bundle/github.d";
 import type { BuildWindow } from "../bundle/make.d";
 import type { SettingConfig, Settings } from "../bundle/settings.js";
-import type { WidgetErrorEventArgs } from "./widget.d";
+import type { FileWidgetWindow, WidgetErrorEventArgs, WidgetFilesEventArgs } from "./widget.d";
 import { Signal, ISignal } from '@lumino/signaling';
 
-const filelistSelf: GlobalToolbarsWindow & GithubWindow & BuildWindow & {
-	settingsManager: Settings;
-	HttpIndexWidget: typeof HttpIndexWidget;
-} = self as unknown as any;
+const filelistSelf: GlobalToolbarsWindow & FileWidgetWindow & GithubWindow
+	& BuildWindow = self as unknown as any;
 
 export class HttpIndexWidget extends FileListWidget
 {
 	private rootFolderName: string | null = null;
-	private _errorOccurred = new Signal<this, WidgetErrorEventArgs>(this);
+	private _errorOccurred = new Signal<HttpIndexWidget, WidgetErrorEventArgs>(this);
 
-	get errorOccurred(): ISignal<this, WidgetErrorEventArgs>
+	get errorOccurred(): ISignal<HttpIndexWidget, WidgetErrorEventArgs>
 	{
 		return this._errorOccurred;
+	}
+
+	private _filesSignal = new Signal<HttpIndexWidget, WidgetFilesEventArgs>(this);
+
+	get filesChanged(): ISignal<HttpIndexWidget, WidgetFilesEventArgs>
+	{
+		return this._filesSignal;
 	}
 
 	/**
@@ -62,7 +67,17 @@ export class HttpIndexWidget extends FileListWidget
 			name = name.replace(/\/$/, '');
 
 			// Ignore parent directory navigations, queries, or anchor targets
-			if(name === '~' || name === '..' || name === '.' || href.startsWith('?') || href.startsWith('#') || seenNames.has(name))
+			if(name === '~' || name === '..' || name === '.' || name.startsWith('!') || href.startsWith('?') || href.startsWith('#') || seenNames.has(name))
+			{
+				continue;
+			}
+
+			// ignore parent directory
+			const nodePath = `${baseNodePath.replace(/\/$/, '')}/${name.replace(/^\//, '')}`;
+			const targetUrl = new URL(href, currentFetchUrl).href;
+			if(nodePath === baseNodePath || href === baseNodePath
+				|| targetUrl === currentFetchUrl
+			)
 			{
 				continue;
 			}
@@ -82,9 +97,6 @@ export class HttpIndexWidget extends FileListWidget
 			// Determine directory state via class attributes, standard HTML markup, or href structure
 			const classAttr = (link.getAttribute('class') || '') + ' ' + (link.parentElement?.getAttribute('class') || '');
 			const isDir = classAttr.includes('icon-directory') || href.endsWith('/') || !name.includes('.');
-
-			const nodePath = `${baseNodePath.replace(/\/$/, '')}/${name.replace(/^\//, '')}`;
-			const targetUrl = new URL(href, currentFetchUrl).href;
 
 			const newNode: NestedTreeNode = {
 				id: nodePath,
@@ -113,11 +125,26 @@ export class HttpIndexWidget extends FileListWidget
 		return nodes;
 	}
 
-	/**
-	 * Helper to fetch directory path from server and parse links into child nodes
-	 */
-	public static async fetchHttpIndexFolderNodes(fetchUrl: string, baseNodePath: string, database: string): Promise<NestedTreeNode[]>
+
+
+	public async fetchFolders(parentId?: string): Promise<NestedTreeNode[] | undefined>
 	{
+		return (await this.fetchFiles(parentId))?.filter(n => n.mode ? n.mode >> 12 == 4 : false);
+	}
+
+
+	public async fetchFiles(folderId?: string): Promise<NestedTreeNode[] | undefined>
+	{
+		const rootUrl = this.cleanUrl(this.defaultRepository);
+		let fetchUrl = rootUrl;
+		if(folderId)
+		{
+			const parts = folderId.replace(/.*:\/\//, '').split('/');
+			const replaceCount = (this._source ?? filelistSelf.settingsManager?.get('filelist', 'http_indexes')).replace(/.*?:\/\//, '').split('/').length;
+			const relativePathSegments = parts.slice(replaceCount);
+			fetchUrl = new URL(relativePathSegments.join('/'), rootUrl).href;
+		}
+
 		const response = await fetch(fetchUrl, {
 			headers: {
 				'Accept': 'text/html,application/xhtml+xml,application/xml'
@@ -131,13 +158,14 @@ export class HttpIndexWidget extends FileListWidget
 
 		const htmlText = await response.text();
 
-		if(filelistSelf.filesRepo && !filelistSelf.filesRepo[database])
+		if(filelistSelf.filesRepo && !filelistSelf.filesRepo[this.handleKey ?? rootUrl])
 		{
-			filelistSelf.filesRepo[database] = {};
+			filelistSelf.filesRepo[this.handleKey ?? rootUrl] = {};
 		}
 
-		return this.parseIndexHtml(htmlText, fetchUrl, baseNodePath, database);
+		return HttpIndexWidget.parseIndexHtml(htmlText, fetchUrl, folderId ?? this.handleKey ?? rootUrl, this.handleKey ?? rootUrl);
 	}
+
 
 	/**
 	 * Extracts folder title from directory markup `<title>` or `<h1>` header
@@ -159,7 +187,7 @@ export class HttpIndexWidget extends FileListWidget
 				const title = doc.querySelector('title')?.textContent?.trim() || doc.querySelector('h1')?.textContent?.trim();
 				if(title)
 				{
-					return 'Drive: ' + title.replace(/^listing directory/i, '').replace(/[\/~]/g, '').trim() || baseUrl;
+					return 'HTTP: ' + title.replace(/^listing directory/i, '').replace(/[\/~]/g, '').trim() || baseUrl;
 				}
 			}
 
@@ -237,20 +265,11 @@ export class HttpIndexWidget extends FileListWidget
 		const activeTree = filelistSelf.trees?.[this.selector];
 		if(!activeTree || !activeTree.nodesById[folderId]) return;
 
-		const parts = folderId.replace(/.*:\/\//, '').split('/');
-		const database = parts[0];
-
-		// Construct remote HTTP directory path sequentially
-		const replaceCount = (this._source ?? DEFAULT_HTTP_INDEX_URL).replace(/.*?:\/\//, '').split('/').length;
-		const relativePathSegments = parts.slice(replaceCount);
-		const rootUrl = this.cleanUrl(this.defaultRepository);
-		const fetchUrl = new URL(relativePathSegments.join('/'), rootUrl).href;
-
 		try
 		{
 			this.treeLoading = true;
 
-			const newChildren = await HttpIndexWidget.fetchHttpIndexFolderNodes(fetchUrl, folderId, database);
+			const newChildren = await this.fetchFiles(folderId) ?? [];
 
 			if(newChildren.length === 0)
 			{
@@ -303,7 +322,7 @@ export class HttpIndexWidget extends FileListWidget
 	private async showGitRoot(folderId?: string): Promise<void>
 	{
 		const baseUrl = this.cleanUrl(this.defaultRepository);
-		const database = this.defaultRepository;
+		this.handleKey = baseUrl.replace(/^https*:\/\//i, '').trim();
 
 		if(!this.rootFolderName)
 		{
@@ -312,7 +331,7 @@ export class HttpIndexWidget extends FileListWidget
 			const repoSelect = this.node.querySelector('.filelist-drive') as HTMLSelectElement;
 			if(repoSelect)
 			{
-				const option = Array.from(repoSelect.options).find(opt => opt.value === database || opt.value === baseUrl);
+				const option = Array.from(repoSelect.options).find(opt => opt.value === this.handleKey || opt.value === baseUrl);
 				if(option)
 				{
 					option.textContent = this.rootFolderName;
@@ -320,7 +339,7 @@ export class HttpIndexWidget extends FileListWidget
 				else
 				{
 					const newOpt = document.createElement('option');
-					newOpt.value = database;
+					newOpt.value = this.handleKey;
 					newOpt.textContent = this.rootFolderName;
 					newOpt.selected = true;
 					repoSelect.appendChild(newOpt);
@@ -328,18 +347,27 @@ export class HttpIndexWidget extends FileListWidget
 			}
 		}
 
-		const rootDisplayText = this.rootFolderName || database;
-
-		if(!this.loadedDatabases[database])
+		const rootDisplayText = this.rootFolderName || this.handleKey;
+		let rootChildren: NestedTreeNode[] = [];
+		if(!this.loadedDatabases[this.handleKey])
 		{
-			let rootChildren: NestedTreeNode[] = [];
 			try
 			{
-				rootChildren = await HttpIndexWidget.fetchHttpIndexFolderNodes(baseUrl, database, database);
-
-				for(const child of rootChildren)
+				rootChildren = await this.fetchFiles(baseUrl) ?? [];
+				if(rootChildren.length === 0)
 				{
-					this.loadedDatabases[child.id] = child;
+					// TODO: ?
+				} else
+				{
+					for(const child of rootChildren)
+					{
+						this.loadedDatabases[child.id] = child;
+					}
+
+					this._filesSignal.emit({
+						source: this,
+						items: rootChildren
+					});
 				}
 			}
 			catch(err)
@@ -348,48 +376,33 @@ export class HttpIndexWidget extends FileListWidget
 				return;
 			}
 
-			this.loadedDatabases[database] = {
-				id: `${database}`,
+			this.loadedDatabases[this.handleKey] = {
+				id: this.handleKey,
 				text: rootDisplayText,
 				status: 0,
 				state: { open: false, expanded: false },
-				path: database,
+				path: this.handleKey,
 				children: rootChildren
 			};
 		}
 		else
 		{
-			this.loadedDatabases[database].text = rootDisplayText;
+			this.loadedDatabases[this.handleKey].text = rootDisplayText;
 		}
 
-		const activeTree = filelistSelf.trees?.[this.selector];
-		if(!activeTree && filelistSelf.trees)
-		{
-			filelistSelf.trees[this.selector] = filelistSelf.trees[database] = new Tree(this.selector, {
-				data: this.loadedDatabases[database].children,
-				autoOpen: false,
-				closeDepth: null
-			});
-		}
-		else if(folderId && activeTree)
-		{
-			activeTree.options.data = this.loadedDatabases[database].children;
-			activeTree.renderPartial(folderId);
-		}
+		this.showFileTree(folderId, this.loadedDatabases[this.handleKey].children ?? rootChildren);
 	}
 }
 
 filelistSelf.HttpIndexWidget = HttpIndexWidget;
 
-export const DEFAULT_HTTP_INDEX_URL = window.location.origin + '/clipart';
 export const DEFAULT_INDEXES: Record<string, string> = {};
-DEFAULT_INDEXES[DEFAULT_HTTP_INDEX_URL] = 'clipart';
 
 const LOCAL_SETTINGS: Record<string, Record<string, SettingConfig>> = {
 	filelist: {
 		httpIndexList: {
 			key: 'http_indexes',
-			default: DEFAULT_INDEXES,
+			default: ['${window.location.origin}/clipart'],
 			type: 'json',
 			description: 'json record of index URLs and display names.'
 		}

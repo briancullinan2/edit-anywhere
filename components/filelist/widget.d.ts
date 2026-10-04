@@ -8,7 +8,17 @@ import type { FileListWidget, GameListWidget } from "./widget";
 import type { LuminoWindow } from '../bundle/lumino.d';
 import type { ApiWindow, WorkerWindow } from "../bundle/worker.d";
 import type { BuildWindow } from "../bundle/make.d";
+import type { Widget } from "@lumino/widgets";
+import type { Signal, ISignal } from '@lumino/signaling';
 
+import type { SearchListWidget } from "./widget-search";
+//import type { LocalD} from "./widget-local";
+import type { HttpIndexWidget } from "./widget-index";
+import type { GoogleDriveWidget } from "./widget-google";
+import type { GithubListWidget } from "./widget-github";
+import type { DatabaseListWidget } from "./widget-database";
+import type { AssetListWidget } from "./widget-assets";
+import type { NestedTreeNode } from "../bundle/github-tools";
 
 type PermissionState = 'granted' | 'denied' | 'prompt';
 
@@ -30,7 +40,7 @@ export interface DirectoryPickerOptions
 }
 
 
-export interface FilelistWindow extends EditorUtilities, GlobalToolbars, SettingsWindow, GithubWindow, LocalWindow, LuminoWindow
+export interface FilelistWindow extends FileWidgetWindow, EditorUtilities, GlobalToolbars, SettingsWindow, GithubWindow, LocalWindow, LuminoWindow
 {
 	loadFileTree?: (repoOwner: string, repoName: string, branch: string, selector: string) => Promise<void>;
 	fileListWidgets?: Array<FileListWidget>;
@@ -38,8 +48,6 @@ export interface FilelistWindow extends EditorUtilities, GlobalToolbars, Setting
 		options?: DirectoryPickerOptions
 	) => Promise<FileSystemDirectoryHandle>;
 	getRegistryIdFromWidget(widget: string | HTMLElement | FileListWidget): string | null | undefined | void;
-	FileListWidget?: typeof FileListWidget;
-	GameListWidget?: typeof GameListWidget;
 }
 
 declare var self: Window & FilelistWindow & typeof globalThis;
@@ -66,16 +74,65 @@ export interface WidgetErrorEventArgs
 {
 	source: Widget;
 	error: Error | string;
-	fallbackType?: string;
+	// fallbackType?: string;
 }
 
-
-interface DriveFile
+export interface WidgetFilesEventArgs
 {
-	id: string;
-	name: string;
-	mimeType: string;
-	thumbnailLink?: string;
-	webContentLink?: string;
+	source: Widget | IFileDataProvider;
+	items: NestedTreeNode[];
 }
 
+
+export interface IErrorEvent
+{
+	get errorOccurred(): ISignal<Widget, WidgetErrorEventArgs>;
+}
+
+export interface IFilesEvent
+{
+	get filesChanged(): ISignal<Widget, WidgetFilesEventArgs>;
+}
+
+
+export interface FileWidgetWindow
+{
+	fileListWidget?: FileListWidget;
+	FileListWidget?: typeof FileListWidget;
+
+	searchListWidget?: SearchListWidget;
+	SearchListWidget?: typeof SearchListWidget;
+
+	gameListWidget?: GameListWidget;
+	GameListWidget?: typeof GameListWidget;
+
+	assetListWidget?: AssetListWidget;
+	AssetListWidget?: typeof AssetListWidget;
+
+	googleDriveWidget?: GoogleDriveWidget;
+	GoogleDriveWidget?: typeof GoogleDriveWidget;
+
+	httpIndexWidget?: HttpIndexWidget;
+	HttpIndexWidget?: typeof HttpIndexWidget;
+
+	githubListWidget?: GithubListWidget;
+	GithubListWidget?: typeof GithubListWidget;
+
+	databaseListWidget?: DatabaseListWidget;
+	DatabaseListWidget?: typeof DatabaseListWidget;
+
+}
+
+
+export type FilesUpdated = (parentId?: string) => Promise<NestedTreeNode[] | undefined>;
+
+
+export interface IFileDataProvider
+{
+	fetchFolders?: FilesUpdated;
+	fetchFiles: FilesUpdated;
+	createFolder?(parentId: string, name: string): Promise<boolean>;
+	createFile?(parentId: string, name: string, content?: Blob): Promise<boolean>;
+	deleteItems?(ids: string[]): Promise<boolean>;
+	renameItem?(id: string, newName: string): Promise<boolean>;
+}

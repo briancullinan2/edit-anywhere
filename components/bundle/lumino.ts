@@ -16,11 +16,12 @@ import { isDevToolsOpen, OUTLINE_WIDGET_TYPES, ResponsiveManager } from './lumin
 
 import '@lumino/widgets/style/index.css';
 //import '@lumino/default-theme/style/index.css'
-import { applyInitialLayout } from './menu-app';
+import { applyInitialLayout } from './menu-layout';
 import JSZip from 'jszip';
 import type { LuminoLayoutWindow } from './lumino.d';
 import type { LuminoMenuWindow, RepositorySettingsWindow } from './menu.d';
 import { updateHashFromWidget } from './lumino-widget';
+import { SplashScreenWidget } from './splash';
 
 
 const luminoSelf: LuminoLayoutWindow & LuminoMenuWindow & RepositorySettingsWindow = self as unknown as any;
@@ -201,6 +202,10 @@ function main(): void
 
 	isDevToolsOpen();
 
+	const splash = new SplashScreenWidget('Starting Up...');
+	luminoSelf.splashScreen = splash;
+	Widget.attach(splash, document.body);
+
 	startServiceWorker().then(async () =>
 	{
 		// because scripts depend on service worker injections and TODO: eventually compiling from SW
@@ -211,9 +216,9 @@ function main(): void
 		const userWorkspaceChoice = SettingsManager.get('core', 'workspaceDefault');
 		if(Array.from(mainDock.widgets()).length === 0 && MODULE_REGISTRY[userWorkspaceChoice])
 		{
-			triggerPanelRoute(userWorkspaceChoice, mainDock, true);
+			await triggerPanelRoute(userWorkspaceChoice, mainDock, true);
 		}
-
+		await luminoSelf.splashScreen?.dismiss();
 	});
 
 }
@@ -292,7 +297,7 @@ const LOCAL_SETTINGS: Record<string, Record<string, SettingConfig>> = {
 	core: {
 		workspaceDefault: {
 			key: 'workspace_default',
-			default: 'resume',
+			default: 'fileview',
 			description: 'Specifies the default active panel or system layout view presented to users upon launching the application interface.'
 		},
 		environmentVersion: {

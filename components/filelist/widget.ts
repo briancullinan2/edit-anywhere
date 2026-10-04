@@ -8,13 +8,15 @@ import
 	configureFileHandle, getRegistryIdFromWidget, getSettingFromRegistryId,
 	listDirectory, LOCAL_SETTINGS, treeHandler, verifyPermission
 } from './widget-local';
-import type { FilelistWindow, FileSystemHandle } from './widget.d';
+import type { FilelistWindow, FileSystemHandle, IFileDataProvider } from './widget.d';
 import type { FileSystemWindow, LuminoLayoutWindow } from '../bundle/lumino.d';
 import type { GlobalToolbarsWindow } from '../bundle/menu.d';
 import type { BuildWindow } from '../bundle/make.d';
+import type { GitHubFileEntry } from '../bundle/github-types';
 
 
-const filelistSelf: FilelistWindow & LuminoLayoutWindow & GlobalToolbarsWindow & FileSystemWindow & BuildWindow = self as unknown as any;
+const filelistSelf: FilelistWindow & LuminoLayoutWindow & GlobalToolbarsWindow & FileSystemWindow
+	& BuildWindow = self as unknown as any;
 
 
 if(!filelistSelf.fileListWidgets)
@@ -23,17 +25,17 @@ if(!filelistSelf.fileListWidgets)
 }
 
 
-export class FileListWidget extends Widget
+export class FileListWidget extends Widget implements IFileDataProvider
 {
 	protected treeContainerId: string;
 	container?: HTMLDivElement;
 	handle?: FileSystemDirectoryHandle;
 	private observer!: MutationObserver;
 	protected loadedDatabases: Record<string, NestedTreeNode> = {};
-	handleKey?: string;
+	protected handleKey?: string;
 	protected treeLoading: boolean = false;
 	protected refreshTreeTimer: ReturnType<typeof setTimeout> | undefined;
-	protected _source?: string;
+	public _source?: string;
 
 	protected get selector()
 	{
@@ -60,6 +62,10 @@ export class FileListWidget extends Widget
 			this._source = source;
 		}
 		this.treeContainerId = `tree-${Date.now()}`;
+		requestAnimationFrame(() =>
+		{
+			this.renderAndLoad();
+		});
 	}
 
 	public processMessage(msg: Message): void
@@ -145,26 +151,33 @@ export class FileListWidget extends Widget
 
 	protected override onAfterAttach(msg: Message): void
 	{
+		super.onAfterAttach(msg);
 		requestAnimationFrame(() =>
 		{
-			this.renderLayout().then(async () =>
-			{
-				this.bindDOMEvents();
-				const widgetHandle = getRegistryIdFromWidget(this);
-				const settingKey: string = getSettingFromRegistryId(widgetHandle);
-				const database = filelistSelf.settingsManager?.get('github', 'environmentRepository');
-				const handle = (await filelistSelf.getRecord?.(filelistSelf.DB_STORE_NAME ?? '', '/' + settingKey, database))?.contents;
-				if((handle instanceof FileSystemDirectoryHandle)
-					&& await verifyPermission(handle as FileSystemHandle))
-				{
-					this.handle = handle;
-					const settingsConfig = Object.values(LOCAL_SETTINGS.filelist).find(s => s.key === settingKey);
-					this.handleKey = configureFileHandle(this.handle, settingsConfig);
-				}
-
-				this.initializeFiletrees();
-			});
+			this.renderAndLoad();
 		});
+
+	}
+
+
+	private async renderAndLoad()
+	{
+		await this.renderLayout();
+
+		this.bindDOMEvents();
+		const widgetHandle = getRegistryIdFromWidget(this);
+		const settingKey: string = getSettingFromRegistryId(widgetHandle);
+		const database = filelistSelf.settingsManager?.get('github', 'environmentRepository');
+		const handle = (await filelistSelf.getRecord?.(filelistSelf.DB_STORE_NAME ?? '', '/' + settingKey, database))?.contents;
+		if((handle instanceof FileSystemDirectoryHandle)
+			&& await verifyPermission(handle as FileSystemHandle))
+		{
+			this.handle = handle;
+			const settingsConfig = Object.values(LOCAL_SETTINGS.filelist).find(s => s.key === settingKey);
+			this.handleKey = configureFileHandle(this.handle, settingsConfig);
+		}
+
+		this.initializeFiletrees();
 	}
 
 	private bindDOMEvents(): void
@@ -238,32 +251,44 @@ export class FileListWidget extends Widget
 
 		if(this.handle)
 		{
-			await this.showLocalFilesystem();
 			this.bindMutationObserver();
 		}
 		else
 		{
 			const owner = (this.node.querySelector('.filelist-owner') as HTMLSelectElement).value;
 			const repo = (this.node.querySelector('.filelist-repository') as HTMLSelectElement).value;
-			const branch = (this.node.querySelector('.filelist-branch') as HTMLSelectElement).value;
-			await loadFileTree(owner, repo, branch, this.selector);
+			const database = `${owner}/${repo}`;
+			this.handleKey = database;
 		}
+		const nodes = await this.fetchFiles();
+
+		this.showFileTree(undefined, nodes);
 	}
 
 
-	private async showLocalFilesystem(folderId?: string): Promise<void>
+
+	private async fetchLocalFiles(folderId?: string): Promise<NestedTreeNode[] | undefined>
 	{
 		if(!this.handle || !this.handleKey)
 		{
 			return;
 		}
-
 		const database = this.handleKey;
+		const parts = folderId?.split('/');
+
+		// Strip the database handle prefix to isolate the relative folder path
+		const relativeSegments = parts?.slice(2);
+		const baseDir = relativeSegments?.join('/');
+		const basePath = folderId && this.loadedDatabases[folderId]
+			? this.loadedDatabases[folderId].path : baseDir;
 
 		if(!this.loadedDatabases[database] && filelistSelf.filesRepo)
 		{
-			// Scan root level items from local directory handle
-			const localEntries = await listDirectory(this.handle, '');
+			const targetDirHandle = relativeSegments
+				? await filelistSelf.resolveDirectoryHandle?.(this.handle, relativeSegments)
+				?? this.handle
+				: this.handle;
+			const localEntries = await listDirectory(targetDirHandle, baseDir);
 
 			filelistSelf.filesRepo[this.selector] = localEntries;
 			if(!filelistSelf.filesRepo[database])
@@ -275,6 +300,7 @@ export class FileListWidget extends Widget
 			for(let n of nodes)
 			{
 				n.id = database + '/' + n.id;
+				n.path = basePath + '/' + n.path;
 				const isDir = n.mode ? (n.mode >> 12) & (filelistSelf.ST_DIR ?? 4) : false;
 				n.children = isDir ? [{ text: 'Loading...', id: `${n.path}/loading`, path: `${n.path}/loading`, status: 0, state: { open: false, expanded: false } } as NestedTreeNode] : null;
 
@@ -283,21 +309,103 @@ export class FileListWidget extends Widget
 				});
 			}
 
-			this.loadedDatabases[database] = {
-				id: database,
-				text: database,
-				status: 0,
-				state: { open: false, expanded: false },
-				path: database,
-				children: nodes
-			};
+			return nodes;
+		}
+
+		if(filelistSelf.filesRepo?.[database])
+		{
+			return filelistSelf.convertFlatToNested?.(Object.values(filelistSelf.filesRepo[database]));
+		}
+	}
+
+
+	public async fetchFolders(parentId?: string): Promise<NestedTreeNode[] | undefined>
+	{
+		return (await this.fetchFiles(parentId))?.filter(n => n.mode ? n.mode >> 12 == 4 : false);
+	}
+
+
+	public async fetchFiles(folderId?: string): Promise<NestedTreeNode[] | undefined>
+	{
+
+		try
+		{
+			if(this.handle)
+			{
+				return await this.fetchLocalFiles(folderId);
+			}
+			else
+			{
+				const owner = (this.node.querySelector('.filelist-owner') as HTMLSelectElement).value;
+				const repo = (this.node.querySelector('.filelist-repository') as HTMLSelectElement).value;
+				const branch = (this.node.querySelector('.filelist-branch') as HTMLSelectElement).value;
+				this.handleKey = `${owner}/${repo}`;
+
+				let files: Record<string, GitHubFileEntry> | undefined = undefined;
+				if(filelistSelf.filesRepo && !filelistSelf.filesRepo[this.selector])
+				{
+					files = filelistSelf.filesRepo[this.selector] = await filelistSelf.loadGitHubTree?.(owner, repo, branch, folderId);
+				}
+
+				if(typeof files !== 'undefined')
+				{
+					if(filelistSelf.filesRepo && !filelistSelf.filesRepo[this.handleKey])
+					{
+						filelistSelf.filesRepo[this.handleKey] = {};
+					}
+
+					const nodes = filelistSelf.convertFlatToNested?.(Object.values(files));
+					for(let n of nodes ?? [])
+					{
+						n.id = this.handleKey + '/' + n.id;
+						const isDir = n.mode ? (n.mode >> 12) & (filelistSelf.ST_DIR ?? 4) : false;
+						n.children = isDir ? [{ text: 'Loading...', id: `${n.path}/loading`, path: `${n.path}/loading`, status: 0, state: { open: false, expanded: false } } as NestedTreeNode] : null;
+						if(filelistSelf.filesRepo)
+						{
+							filelistSelf.filesRepo[this.handleKey]![n.path] = filelistSelf.FS.virtual[n.path] = this.loadedDatabases[n.id] = Object.assign(n, {
+								mode: n.mode ?? filelistSelf.FS_FILE ?? (0o100000 | 0o666),
+							});
+						}
+					}
+				}
+			}
+		}
+		catch(error)
+		{
+			console.error('Failed to load file list tree:', error);
+		}
+	}
+
+
+
+	protected async showFileTree(folderId?: string, nodes?: NestedTreeNode[]): Promise<void>
+	{
+		if(!this.handleKey)
+		{
+			return;
+		}
+
+		const database = this.handleKey;
+
+		this.loadedDatabases[database] = {
+			id: database,
+			text: database,
+			status: 0,
+			state: { open: false, expanded: false },
+			path: database,
+			children: nodes
+		};
+
+		if(!this.isAttached)
+		{
+			return;
 		}
 
 		const activeTree = filelistSelf.trees?.[this.selector];
 		if(!activeTree && filelistSelf.trees)
 		{
 			filelistSelf.trees[this.selector] = filelistSelf.trees[database] = new Tree(this.selector, {
-				data: this.loadedDatabases[database].children,
+				data: nodes ?? this.loadedDatabases[database].children,
 				autoOpen: false,
 				closeDepth: null
 			});
@@ -338,28 +446,9 @@ export class FileListWidget extends Widget
 		{
 			this.treeLoading = true;
 
-			if(filelistSelf.filesRepo && !filelistSelf.filesRepo?.[database])
-			{
-				filelistSelf.filesRepo[database] = {};
-			}
+			const nodes = await this.fetchLocalFiles(folderId);
 
-			// Resolve sub-directory handle and list its children
-			const targetDirHandle = await filelistSelf.resolveDirectoryHandle?.(this.handle, relativeSegments);
-			const result = targetDirHandle ? await listDirectory(targetDirHandle, baseDir) : {};
-
-			const nodes = filelistSelf.convertFlatToNested?.(Object.values(result ?? {}));
-			for(const r of nodes ?? [])
-			{
-				r.path = basePath + '/' + r.path;
-				if(filelistSelf.filesRepo?.[database])
-				{
-					filelistSelf.filesRepo[database][r.path] = filelistSelf.FS.virtual[r.path] = Object.assign(r, {
-						mode: r.mode ?? filelistSelf.FS_FILE ?? (0o100000 | 0o666),
-					});
-				}
-			}
-
-			const resultSet = Object.values(filelistSelf.filesRepo?.[database] ?? {}).reduce((acc: Record<string, any>, r: any) =>
+			const resultSet = (nodes ?? Object.values(filelistSelf.filesRepo?.[database] ?? {})).reduce((acc: Record<string, any>, r: any) =>
 			{
 				acc[r.path] = r;
 				return acc;
@@ -437,7 +526,10 @@ export class FileListWidget extends Widget
 			} as NestedTreeNode;
 		}
 
-		await this.showLocalFilesystem(folderId);
+		if(this.loadedDatabases[folderId].children)
+		{
+			await this.showFileTree(folderId, this.loadedDatabases[folderId].children);
+		}
 
 		if(this.refreshTreeTimer)
 		{
@@ -517,35 +609,5 @@ export class GameListWidget extends FileListWidget
 		return filelistSelf.settingsManager?.get('github', 'gameRepository');
 	}
 }
-
-
-export async function loadFileTree(repoOwner: string, repoName: string, branch: string, selector: string): Promise<void>
-{
-	try
-	{
-		const database = `${repoOwner}/${repoName}`;
-		if(filelistSelf.filesRepo)
-		{
-			filelistSelf.filesRepo[selector] = await filelistSelf.loadGitHubTree?.(repoOwner, repoName, branch);
-		}
-
-		if(!filelistSelf.filesRepo?.[selector]) return;
-
-		if(filelistSelf.trees)
-		{
-			filelistSelf.trees[selector] = filelistSelf.trees[database] = new Tree(selector, {
-				data: filelistSelf.convertFlatToNested?.(Object.values(filelistSelf.filesRepo[selector])),
-				autoOpen: false,
-				closeDepth: 2,
-			});
-		}
-	} catch(error)
-	{
-		console.error('Failed to load file list tree:', error);
-	}
-}
-
-filelistSelf.loadFileTree = loadFileTree;
-
 
 filelistSelf.GameListWidget = GameListWidget;

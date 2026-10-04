@@ -19,6 +19,9 @@ import type { ScriptToolbar } from "./menu-script";
 import type { SearchService } from "./lumino-search";
 import type { SettingsToolbar } from "./menu-settings";
 import type { GithubService } from "./github-worker";
+import type { EditToolbar } from "./menu-edit";
+import type { ViewToolbar } from "./menu-view";
+import { LayoutToolbar } from "./menu-layout";
 
 // ============================================================================
 // 1. TOOLBARS & COMPONENT INSTANCES / CONSTRUCTORS
@@ -69,6 +72,16 @@ export interface GlobalToolbarsWindow
 
 	layoutAdjuster?: LayoutAdjuster;
 	LayoutAdjuster?: typeof LayoutAdjuster;
+
+	editToolbar?: EditToolbar;
+	EditToolbar?: typeof EditToolbar;
+
+	viewToolbar?: ViewToolbar;
+	ViewToolbar?: typeof ViewToolbar;
+
+	layoutToolbar?: LayoutToolbar;
+	LayoutToolbar?: typeof LayoutToolbar;
+
 }
 
 // ============================================================================
@@ -91,6 +104,7 @@ export interface RepositorySettingsWindow
 	SETTINGS_CONTROLS?: ControlConfig[];
 	IMPORT_SETTINGS?: Record<string, Record<string, SettingConfig>>;
 	MODULE_REGISTRY?: Record<string, ComponentRoute>;
+	TOOLS_REGISTRY?: Record<string, ComponentRoute>;
 	TERMINAL_REGISTRY?: TerminalFilter[];
 
 	updateSelectOptions?: (

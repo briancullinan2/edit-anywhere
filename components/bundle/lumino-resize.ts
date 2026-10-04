@@ -32,14 +32,18 @@ export interface SafeDockLayoutConfig
 }
 
 
-export type ToolbarKey = 'repositoryToolbar' | 'scriptToolbar' | 'appToolbar' | 'fileToolbar' | 'historyToolbar' | 'settingsToolbar';
+export type ToolbarKey = 'repositoryToolbar' | 'scriptToolbar'
+	| 'appToolbar' | 'fileToolbar' | 'historyToolbar' | 'settingsToolbar'
+	| 'editToolbar' | 'viewToolbar' | 'layoutToolbar';
 
 
 export const OUTLINE_WIDGET_TYPES = [
 	'FileListWidget', 'GameListWidget',
 	'DatabaseListWidget', 'AssetListWidget',
 	'GithubListWidget', 'SearchListWidget',
-	'SkillsWidget', 'GoogleDriveWidget'
+	'SkillsWidget', 'GoogleDriveWidget',
+	'HttpIndexWidget', 'PlaylistWidget',
+	'XRayPanelWidget'
 ];
 
 
@@ -50,16 +54,29 @@ export const TOOLBAR_CONTEXT_MAP: Record<ToolbarKey, string[]> = {
 	appToolbar: [
 		'TerminalWidget', 'AceEditorWidget', 'PaintWidget', 'NunuStudioWidget',
 		'TojiWidget', 'FileListWidget', 'GameListWidget', 'GoogleDriveWidget',
-		'AssetListWidget', 'GithubWidget', 'SettingsWidget', 'SearchWidget', 'AudioEditorWidget'
+		'AssetListWidget', 'HttpIndexWidget', 'GithubWidget', 'SettingsWidget', 'SearchWidget', 'AudioEditorWidget',
+		'FileviewWidget'
 	],
 	fileToolbar: [
-		'AceEditorWidget', 'FileListWidget', 'GameListWidget', 'AssetListWidget', 'GoogleDriveWidget'
+		'AceEditorWidget', 'FileListWidget', 'GameListWidget', 'AssetListWidget', 'HttpIndexWidget', 'GoogleDriveWidget', 'FileviewWidget'
+	],
+	editToolbar: [
+		'AceEditorWidget', 'FileListWidget', 'GameListWidget', 'AssetListWidget', 'HttpIndexWidget', 'GoogleDriveWidget', 'FileviewWidget'
+	],
+	viewToolbar: [
+		'FileviewWidget'
+	],
+	layoutToolbar: [
+		'TerminalWidget', 'AceEditorWidget', 'PaintWidget', 'NunuStudioWidget',
+		'TojiWidget', 'FileListWidget', 'GameListWidget', 'GoogleDriveWidget',
+		'AssetListWidget', 'HttpIndexWidget', 'GithubWidget', 'SettingsWidget', 'SearchWidget', 'AudioEditorWidget',
+		'FileviewWidget'
 	],
 	scriptToolbar: [
 		'TerminalWidget', 'AceEditorWidget'
 	],
 	repositoryToolbar: [
-		'FileListWidget', 'GameListWidget', 'GithubWidget'
+		'FileListWidget', 'GameListWidget', 'AssetListWidget', 'GithubWidget'
 	],
 	historyToolbar: [
 		'PaintWidget', 'NunuStudioWidget', 'AceEditorWidget', 'AudioEditorWidget'
@@ -599,7 +616,7 @@ export class ResponsiveManager
 	 */
 	private _adjustDockPanelLayout(mainDock: DockPanel, currentWidgets: any[]): void
 	{
-		if(currentWidgets.length <= this._prevWidgetCount || this.alreadyResizing)
+		if(/*currentWidgets.length <= this._prevWidgetCount ||*/ this.alreadyResizing)
 		{
 			this._prevWidgetCount = currentWidgets.length;
 			return;

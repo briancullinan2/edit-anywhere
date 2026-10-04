@@ -1,27 +1,44 @@
-import type { NestedTreeNode } from "../bundle/github-tools";
+import type { FlatFileNode, NestedTreeNode } from "../bundle/github-tools";
 import { FileListWidget } from "./widget";
 import Tree from './tree.js';
 import type { GlobalToolbarsWindow } from "../bundle/menu.d";
 import type { GithubWindow } from "../bundle/github.d";
 import type { BuildWindow } from "../bundle/make.d";
-import type { SettingConfig, Settings } from "../bundle/settings.js";
+import type { SettingConfig } from "../bundle/settings.js";
 import { Signal, ISignal } from '@lumino/signaling';
-import { Widget } from "@lumino/widgets";
-import type { DriveFile, FilelistWindow, WidgetErrorEventArgs } from "./widget.d";
+import type {
+	FilelistWindow, FileWidgetWindow, IErrorEvent,
+	IFilesEvent, WidgetErrorEventArgs, WidgetFilesEventArgs
+} from "./widget.d";
+import { Message } from "@lumino/messaging";
 
-const filelistSelf: GlobalToolbarsWindow & GithubWindow & BuildWindow & FilelistWindow & {
-	settingsManager: Settings;
-	GoogleDriveWidget: typeof GoogleDriveWidget;
-} = self as unknown as any;
+const filelistSelf: GlobalToolbarsWindow & FileWidgetWindow & GithubWindow & BuildWindow
+	& FilelistWindow = self as unknown as any;
 
-export class GoogleDriveWidget extends FileListWidget
+export interface GoogleDriveFile extends FlatFileNode
+{
+	mimeType?: string;
+	modifiedTime?: string;
+	thumbnailLink?: string;
+}
+
+
+export class GoogleDriveWidget extends FileListWidget implements IErrorEvent, IFilesEvent
 {
 	private rootFolderName: string | null = null;
-	private _errorOccurred = new Signal<this, WidgetErrorEventArgs>(this);
+	private _errorOccurred = new Signal<GoogleDriveWidget, WidgetErrorEventArgs>(this);
+	private _filesSignal = new Signal<GoogleDriveWidget, WidgetFilesEventArgs>(this);
+	private static _debounceQueries: Record<string, Promise<GoogleDriveFile[] | undefined>> = {};
+	private failed: boolean = false;
 
-	get errorOccurred(): ISignal<this, WidgetErrorEventArgs>
+	get errorOccurred(): ISignal<GoogleDriveWidget, WidgetErrorEventArgs>
 	{
 		return this._errorOccurred;
+	}
+
+	get filesChanged(): ISignal<GoogleDriveWidget, WidgetFilesEventArgs>
+	{
+		return this._filesSignal;
 	}
 
 	constructor(titleStr?: string, source?: string)
@@ -34,6 +51,20 @@ export class GoogleDriveWidget extends FileListWidget
 		super(titleStr, source);
 	}
 
+	public processMessage(msg: Message): void
+	{
+		if(this.failed)
+		{
+			return super.processMessage(msg);
+		}
+		if(msg.type === 'close-request')
+		{
+			this._errorOccurred = new Signal<GoogleDriveWidget, WidgetErrorEventArgs>(this);
+		}
+
+		super.processMessage(msg);
+	}
+
 	/**
 	 * Extracts a raw Google Drive Folder ID from a full share URL or path
 	 */
@@ -43,12 +74,12 @@ export class GoogleDriveWidget extends FileListWidget
 		{
 			return rawSource.split('/folders/')[1].split('?')[0];
 		}
-		return rawSource.replace(/^GoogleDrive\//i, '').trim();
+		return rawSource.replace(/^GoogleDrive\/|gdrive:\/\//i, '').trim();
 	}
 
-	public static async fetchDriveFiles(query: string): Promise<DriveFile[]>
+	public static async fetchDriveFiles(query: string): Promise<GoogleDriveFile[]>
 	{
-		const apiKey = filelistSelf.settingsManager?.get('filelist', 'google_key') || GOOGLE_CLOUD_API_KEY;
+		const apiKey = filelistSelf.settingsManager?.get('filelist', 'google_key');
 		// Added thumbnailLink to requested fields
 		const fields = 'files(id, name, mimeType, size, thumbnailLink, webContentLink, parents)';
 
@@ -61,43 +92,65 @@ export class GoogleDriveWidget extends FileListWidget
 			supportsAllDrives: 'true'
 		});
 
-		const url = `https://www.googleapis.com/drive/v3/files?${params.toString()}`;
+		const paramsStr = params.toString();
 
-		const response = await fetch(url, {
+		if(typeof this._debounceQueries[paramsStr] !== 'undefined')
+		{
+			const results = await this._debounceQueries[paramsStr];
+			if(results)
+			{
+				return results;
+			}
+		}
+
+		const url = `https://www.googleapis.com/drive/v3/files?${paramsStr}`;
+
+		const debounced = fetch(url, {
 			method: 'GET',
 			mode: 'cors',
 			credentials: 'omit'
+		}).then(async response =>
+		{
+			if(!response.ok)
+			{
+				const errJson = await response.json().catch(() => ({}));
+				throw new Error(errJson.error?.message || `HTTP ${response.status}`);
+			}
+
+			const data = await response.json();
+
+			if(!data.files.length)
+			{
+				throw new Error(`No Drive files! status: ${response.status}`);
+			}
+
+			delete this._debounceQueries[paramsStr];
+			return data.files || [];
 		});
 
-		if(!response.ok)
-		{
-			const errJson = await response.json().catch(() => ({}));
-			throw new Error(errJson.error?.message || `HTTP ${response.status}`);
-		}
+		this._debounceQueries[paramsStr] = debounced;
 
-		const data = await response.json();
-
-		if(!data.files.length)
-		{
-			throw new Error(`No Drive files! status: ${response.status}`);
-		}
-
-		return data.files || [];
+		return await debounced;
 	}
 
 	/**
 	 * Shared helper to query Drive API and map results into NestedTreeNode instances
 	 */
-	private async fetchDriveFolderNodes(parentDriveId: string, baseNodePath: string, database: string): Promise<NestedTreeNode[]>
+	public override async fetchFiles(baseNodePath: string): Promise<NestedTreeNode[]>
 	{
-		const q = encodeURIComponent(`'${parentDriveId}' in parents and trashed = false`);
-
-		const driveFiles: Array<{ id: string; name: string; mimeType: string; }> = await GoogleDriveWidget.fetchDriveFiles(q);
-
-
-		if(filelistSelf.filesRepo && !filelistSelf.filesRepo[database])
+		if(!this.handleKey)
 		{
-			filelistSelf.filesRepo[database] = {};
+			return [];
+		}
+
+		const q = encodeURIComponent(`'${this.handleKey}' in parents and trashed = false`);
+
+		const driveFiles: GoogleDriveFile[] = await GoogleDriveWidget.fetchDriveFiles(q);
+
+
+		if(filelistSelf.filesRepo && !filelistSelf.filesRepo[this.handleKey])
+		{
+			filelistSelf.filesRepo[this.handleKey] = {};
 		}
 
 		const nodes: NestedTreeNode[] = [];
@@ -121,9 +174,9 @@ export class GoogleDriveWidget extends FileListWidget
 					: null
 			};
 
-			if(filelistSelf.filesRepo?.[database] && filelistSelf.FS)
+			if(filelistSelf.filesRepo?.[this.handleKey] && filelistSelf.FS)
 			{
-				filelistSelf.filesRepo[database][nodePath] = filelistSelf.FS.virtual[nodePath] = Object.assign(newNode, {
+				filelistSelf.filesRepo[this.handleKey]![nodePath] = filelistSelf.FS.virtual[nodePath] = Object.assign(newNode, {
 					mode: isDir ? (filelistSelf.FS_DIR ?? 0o040000) : (filelistSelf.FS_FILE ?? (0o100000 | 0o666)),
 					driveId: file.id
 				});
@@ -143,7 +196,7 @@ export class GoogleDriveWidget extends FileListWidget
 	private async fetchFolderName(folderId: string): Promise<string>
 	{
 		const googleDrives = filelistSelf.settingsManager?.get('filelist', 'google_drives') || DEFAULT_DRIVES;
-		const apiKey = filelistSelf.settingsManager?.get('filelist', 'google_key') || GOOGLE_CLOUD_API_KEY;
+		const apiKey = filelistSelf.settingsManager?.get('filelist', 'google_key');
 		if(!apiKey || !folderId || folderId === 'Root') return 'GoogleDrive/Root';
 
 		const cleanFolderId = folderId.includes('/folders/')
@@ -244,19 +297,17 @@ export class GoogleDriveWidget extends FileListWidget
 		if(!activeTree || !activeTree.nodesById[folderId]) return;
 
 		const parts = folderId.split('/');
-		const database = `${parts[0]}/${parts[1]}`;
-
 		let parentDriveId = parts[parts.length - 1];
 		if(parentDriveId === 'Root')
 		{
-			parentDriveId = this.extractFolderId(this.defaultRepository);
+			this.handleKey = this.extractFolderId(this.defaultRepository);
 		}
 
 		try
 		{
 			this.treeLoading = true;
 
-			const newChildren = await this.fetchDriveFolderNodes(parentDriveId, folderId, database);
+			const newChildren = await this.fetchFiles(folderId);
 
 			if(newChildren.length === 0)
 			{
@@ -283,7 +334,6 @@ export class GoogleDriveWidget extends FileListWidget
 			this._errorOccurred.emit({
 				source: this,
 				error: err instanceof Error ? err : String(err),
-				fallbackType: 'http-index'
 			});
 			this.loadedDatabases[folderId] = {
 				children: [{
@@ -315,6 +365,7 @@ export class GoogleDriveWidget extends FileListWidget
 		const database = this.defaultRepository;
 
 		// Fetch folder name if not resolved yet
+		/*
 		if(!this.rootFolderName)
 		{
 			this.rootFolderName = await this.fetchFolderName(rawFolderId);
@@ -338,15 +389,26 @@ export class GoogleDriveWidget extends FileListWidget
 				}
 			}
 		}
+		*/
 
 		const rootDisplayText = this.rootFolderName || database;
-
+		let rootChildren: NestedTreeNode[] = [];
 		if(!this.loadedDatabases[database])
 		{
-			let rootChildren: NestedTreeNode[] = [];
 			try
 			{
-				rootChildren = await this.fetchDriveFolderNodes(rawFolderId, database, database);
+				this.handleKey = rawFolderId;
+				rootChildren = await this.fetchFiles('');
+				if(rootChildren.length === 0)
+				{
+					// TODO?
+				} else
+				{
+					this._filesSignal.emit({
+						source: this,
+						items: rootChildren
+					});
+				}
 			}
 			catch(err)
 			{
@@ -354,59 +416,35 @@ export class GoogleDriveWidget extends FileListWidget
 				this._errorOccurred.emit({
 					source: this,
 					error: err instanceof Error ? err : String(err),
-					fallbackType: 'http-index'
 				});
+				this.failed = true;
 				return;
 			}
-
-			this.loadedDatabases[database] = {
-				id: `${database}/${rawFolderId}`,
-				text: rootDisplayText,
-				status: 0,
-				state: { open: false, expanded: false },
-				path: database,
-				children: rootChildren
-			};
 		}
 		else
 		{
 			this.loadedDatabases[database].text = rootDisplayText;
 		}
 
-		const activeTree = filelistSelf.trees?.[this.selector];
-		if(!activeTree && filelistSelf.trees)
-		{
-			filelistSelf.trees[this.selector] = filelistSelf.trees[database] = new Tree(this.selector, {
-				data: this.loadedDatabases[database].children,
-				autoOpen: false,
-				closeDepth: null
-			});
-		} else if(folderId && activeTree)
-		{
-			activeTree.options.data = this.loadedDatabases[database].children;
-			activeTree.renderPartial(folderId);
-		}
+		this.showFileTree(folderId, this.loadedDatabases[database].children ?? rootChildren);
 	}
 }
 
 filelistSelf.GoogleDriveWidget = GoogleDriveWidget;
 
 
-export const GOOGLE_CLOUD_API_KEY = 'AIzaSyAsZR_uPzhdnkNktP8CGKbooWndEUYaq9I';
-export const PUBLIC_GOOGLE_DRIVE_FOLDER_ID = '1iZXcde4zeQmFJoCedo70wu0ouZ1QF0Se';
 const DEFAULT_DRIVES: Record<string, string> = {};
-DEFAULT_DRIVES[PUBLIC_GOOGLE_DRIVE_FOLDER_ID] = 'txt2img';
 const LOCAL_SETTINGS: Record<string, Record<string, SettingConfig>> = {
 	filelist: {
 		googleDriveKey: {
 			key: 'google_key',
-			default: GOOGLE_CLOUD_API_KEY,
+			default: 'AIzaSyAsZR_uPzhdnkNktP8CGKbooWndEUYaq9I',
 			type: 'json',
 			description: 'google drive API key.',
 		},
 		googleDriveList: {
 			key: 'google_drives',
-			default: DEFAULT_DRIVES,
+			default: ['gdrive://1iZXcde4zeQmFJoCedo70wu0ouZ1QF0Se'],
 			type: 'json',
 			description: 'json record of folder ids and folder names.',
 			set: (val: string[]): void =>

@@ -7,8 +7,14 @@ import type { LuminoLayoutWindow } from "./lumino.d";
 import type { EditorWindow } from "../editor/widget.d";
 import type { GlobalToolbarsWindow, RepositorySettingsWindow } from "./menu.d";
 
+export type SettingsWindow =
+	{
+		[K in keyof typeof LOCAL_SETTINGS]: typeof LOCAL_SETTINGS[K];
+	};
 
-const luminoSelf: LuminoLayoutWindow & EditorWindow & RepositorySettingsWindow & GlobalToolbarsWindow & RepositorySettingsWindow & { [key: string]: any; } = self as unknown as any;
+const luminoSelf: LuminoLayoutWindow & EditorWindow & RepositorySettingsWindow
+	& GlobalToolbarsWindow & RepositorySettingsWindow & SettingsWindow
+	= self as unknown as any;
 
 
 export interface SettingConfig
@@ -67,6 +73,34 @@ export type FileOpenTuple = [
 	fileContents: string | null
 ];
 
+
+
+function renderTemplate(template: string, context: Record<string, any> = {
+	window: self,
+	self: self,
+	globalThis: self
+}): string | null
+{
+	if(!template)
+	{
+		return null;
+	}
+	if(typeof template !== 'string')
+	{
+		const rendered = renderTemplate(JSON.stringify(template));
+		if(rendered)
+		{
+			return JSON.parse(rendered);
+		}
+	}
+	// \\* so it can also replace encodings inside JSON
+	return template.replace(/\\*\$\\*\{([^}]+)\\*\}/g, (match, key) =>
+	{
+		// Safely look up keys in the context object or global scope
+		const keys = key.trim().split('.');
+		return keys.reduce((acc: Record<string, any>, curr: any) => acc?.[curr], context) ?? match;
+	});
+}
 
 
 export class Settings
@@ -133,7 +167,7 @@ export class Settings
 
 				if(raw === null || raw === 'null' || raw === 'NULL')
 				{
-					raw = finalValue = config.default;
+					raw = finalValue = renderTemplate(config.default);
 				}
 
 				if(config.type === 'boolean')
@@ -154,7 +188,7 @@ export class Settings
 					{
 						debugger;
 						console.error(e);
-						finalValue = config.default;
+						finalValue = renderTemplate(config.default);
 					}
 				} else if(config.type === 'array')
 				{
@@ -179,7 +213,7 @@ export class Settings
 					{
 						debugger;
 						console.error(e);
-						finalValue = config.default;
+						finalValue = renderTemplate(config.default);
 					}
 				} else if(config.type === 'csv')
 				{
@@ -254,7 +288,7 @@ export class Settings
 						el.value = finalValue;
 					} else
 					{
-						el.value = targetConfig.default;
+						el.value = renderTemplate(targetConfig.default) ?? '';
 					}
 				} else
 				{
@@ -290,7 +324,7 @@ export class Settings
 			let currentVal: any;
 			if(typeof config.get === 'function')
 			{
-				currentVal = config.get(localStorage.getItem(config.key), config.default, config);
+				currentVal = config.get(localStorage.getItem(config.key), renderTemplate(config.default), config);
 			} else if(config.elementId)
 			{
 				const el = document.getElementById(config.elementId);
@@ -326,7 +360,7 @@ export class Settings
 				}
 			}
 
-			currentVal = currentVal !== undefined && currentVal !== null ? currentVal : config.default;
+			currentVal = currentVal !== undefined && currentVal !== null ? currentVal : renderTemplate(config.default);
 			payload[config.key] = currentVal;
 		}
 
@@ -369,7 +403,7 @@ export class Settings
 				{
 					console.error(e);
 					debugger;
-					return stored || config.default;
+					return stored ?? renderTemplate(config.default);
 				}
 			}
 		}
@@ -383,8 +417,12 @@ export class Settings
 			}
 		}
 
-		return config.default;
+		return renderTemplate(config.default);
 	}
+
+
+
+
 
 	/**
 	 * 5. Spawns the in-memory filesystem changes and updates the target workspace editor
