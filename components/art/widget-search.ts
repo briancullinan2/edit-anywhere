@@ -273,7 +273,7 @@ export class WidgetSearchBar
 		if(!tabNode) return;
 
 		// Find Lumino's native close icon container
-		const closeIconNode = tabNode.querySelector('.lm-TabBar-tabCloseIcon');
+		const closeIconNode = tabNode.querySelector('.lm-TabBar-tabLabel') as HTMLElement;
 		if(!closeIconNode || tabNode.querySelector('.custom-toggle-btn')) return;
 
 		// Create custom toggle button
@@ -291,7 +291,7 @@ export class WidgetSearchBar
 		});
 
 		// Insert toggle right before the close icon
-		closeIconNode.parentNode?.insertBefore(context._toggleBtn, closeIconNode);
+		closeIconNode.insertAdjacentElement("afterend", context._toggleBtn);
 	}
 
 }

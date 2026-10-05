@@ -27,19 +27,19 @@ export class VirtualWriterScrollerWidget extends Widget
 	{
 		super();
 		this.addClass('lm-VirtualWriterScroller');
-		this.node.style.cssText = 'position: relative; width: 100%; height: 100%; overflow: hidden;';
+		this.node.style.cssText = '';
 
 		// Outer scroll viewport
 		this._scrollContainer = document.createElement('div');
-		this._scrollContainer.style.cssText = 'position: absolute; inset: 0px; overflow-y: auto; scroll-behavior: smooth;';
+		this._scrollContainer.classList.add('lm-VirtualWriterScroller-container');
 
 		// Phantom height expander
 		this._phantomSpacer = document.createElement('div');
-		this._phantomSpacer.style.cssText = 'position: absolute; top:0px; left:0px; width:1px; visibility: hidden;';
+		this._phantomSpacer.classList.add('lm-VirtualWriterScroller-spacer');
 
 		// Active DOM pool container
 		this._poolContainer = document.createElement('div');
-		this._poolContainer.style.cssText = 'position: absolute; top:0px; left:0px; width:100%; pointer-events: auto;';
+		this._poolContainer.classList.add('lm-VirtualWriterScroller-pool');
 
 		this._scrollContainer.appendChild(this._phantomSpacer);
 		this._scrollContainer.appendChild(this._poolContainer);

@@ -40,20 +40,26 @@ export class BookmarksWidget extends Widget
 	private selectedBookmark: IBookmarkNode | null = null;
 	public _toggleBtn?: HTMLElement | HTMLDivElement;
 
-	constructor(title: string = 'Visual Bookmark Diff & Merge')
+	constructor(title?: string)
 	{
 		super();
 		this.id = 'lumino-bookmark-manager';
-		this.title.label = title;
+		this.title.label = title ?? "Bookmark Merge";
 		this.title.iconClass = 'bx bx-bookmarks';
+		this.title.closable = true;
+		this.title.className = this.id;
 		this.addClass('bm-manager-widget');
+		this.renderLayout();
 	}
 
 	protected override onAfterAttach(msg: Message): void
 	{
 		super.onAfterAttach(msg);
-		this.renderLayout();
-		WidgetSearchBar.attachToggleIcon(this, this.renderToggleBtn, this.clickToggleBtn);
+		this.setupDragAndDrop();
+		setTimeout(() =>
+		{
+			WidgetSearchBar.attachToggleIcon(this, this.renderToggleBtn, this.clickToggleBtn);
+		}, 200);
 	}
 
 
@@ -102,7 +108,6 @@ export class BookmarksWidget extends Widget
 		container.appendChild(bodySplit);
 		this.node.appendChild(container);
 
-		this.setupDragAndDrop();
 	}
 
 	/**

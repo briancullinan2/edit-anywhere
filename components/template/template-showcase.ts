@@ -105,7 +105,7 @@ export const SHOWCASE_TEMPLATES: ITemplateItem[] = [
       </div>
     `,
 		cssContent: `
-      .coral-layout { display: flex; height: 100%; margin: -10px; }
+      .coral-layout { display: flex; height: calc(100% + 20px); margin: -10px; }
       .coral-strip { width: 35%; background: #fff3e0; padding: 8px 6px; border-right: 2px solid #ffab91; }
       .avatar-ph { width: 20px; height: 20px; background: #ff7043; border-radius: 50%; margin-bottom: 6px; }
       .coral-strip h2 { font-size: 5px; color: #d84315; margin-top: 4px; text-transform: uppercase; }

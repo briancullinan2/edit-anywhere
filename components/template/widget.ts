@@ -11,6 +11,8 @@ import
 } from './template';
 import { TemplateMiniatureRenderer } from './widget-mini';
 
+export * from './template';
+
 export class LayoutWidget extends Widget
 {
 	/**
@@ -25,6 +27,7 @@ export class LayoutWidget extends Widget
 	{
 		super();
 		this.title.label = title ?? 'Templates';
+		this.title.closable = true;
 		this.categories = categories;
 		this.id = 'lumino-template-gallery';
 		this.addClass('docs-homescreen-itemholder-content');
@@ -147,4 +150,12 @@ export class TemplateWidget extends LayoutWidget
 		super();
 		this.title.label = title ?? 'Layouts';
 	}
+}
+
+if(typeof module !== 'undefined' && module.exports)
+{
+	module.exports = {
+		TemplateWidget,
+		LayoutWidget
+	};
 }

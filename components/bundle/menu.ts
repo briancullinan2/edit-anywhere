@@ -66,7 +66,7 @@ export const MODULE_REGISTRY: Record<string, ComponentRoute> = {
 	},
 	'scroll': {
 		label: 'Layout Manager',
-		url: './components/template/widget.ts',
+		url: './components/template/template.bundle.js',
 		className: 'TemplateWidget',
 		iconClass: 'bx bx-scroll',
 		subtext: 'Requires Lumino Widget lifecycle management and pre-built layout template definitions.',

@@ -10,7 +10,9 @@ import type { LuminoLayoutWindow } from './lumino.d';
 const parseBabel = packages.parser.parse;
 const traverse = (packages as any).traverse.default;
 
-const compileSelf: LuminoLayoutWindow = self as unknown as any;
+const compileSelf: LuminoLayoutWindow & {
+	[key: string]: any;
+} = self as unknown as any;
 
 
 
@@ -658,7 +660,7 @@ export async function loadAndInstantiate(route: ComponentRoute): Promise<any>
 		const modulePromise = import(/* webpackIgnore: true */ route.url + '?t=' + Date.now() + '&local-csp=true');
 		registry.set(route.url, modulePromise);
 		const module = await modulePromise;
-		return new module[route.className](route.label);
+		return new (module?.default?.[route.className] ?? module?.[route.className] ?? compileSelf[route.className])(route.label);
 	}
 
 	const targetUrl = route.url.replace(/\.ts$/, '.js').replace(/^\.\//, '/base/');
@@ -667,7 +669,7 @@ export async function loadAndInstantiate(route: ComponentRoute): Promise<any>
 	{
 		console.log('Already transpiled: ' + targetUrl);
 		const module2 = await existingPromise;
-		return new module2[route.className](route.label);
+		return new (module2?.default?.[route.className] ?? module2?.[route.className] ?? compileSelf[route.className])(route.label);
 	}
 
 	await fetchTranspileAndStore(route.url);
