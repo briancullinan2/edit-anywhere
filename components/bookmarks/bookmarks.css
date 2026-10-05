@@ -45,11 +45,11 @@
 
 .bm-btn {
 	padding: 8px 14px;
-	border-radius: 6px;
+	/* border-radius: 6px; */
 	font-size: 13px;
 	font-weight: 500;
 	cursor: pointer;
-	border: 1px solid transparent;
+	border: 2px solid transparent;
 	transition: all 0.2s ease;
 }
 
@@ -98,7 +98,7 @@
 
 .bm-dropzone {
 	border: 2px dashed #cbd5e1;
-	border-radius: 8px;
+	/* border-radius: 8px; */
 	padding: 20px;
 	text-align: center;
 	background: #f8fafc;
@@ -156,7 +156,7 @@
 	justify-content: space-between;
 	background: #f1f5f9;
 	padding: 6px 10px;
-	border-radius: 4px;
+	/* border-radius: 4px; */
 	font-size: 12px;
 }
 
@@ -174,14 +174,14 @@
 	color: #0f172a;
 	font-size: 10px;
 	padding: 2px 6px;
-	border-radius: 10px;
+	/* border-radius: 10px; */
 }
 
 .bm-schema-textarea {
 	width: 100%;
 	height: 110px;
-	border: 1px solid #cbd5e1;
-	border-radius: 6px;
+	border: 2px solid #cbd5e1;
+	/* border-radius: 6px; */
 	padding: 8px;
 	font-family: monospace;
 	font-size: 11px;
@@ -198,8 +198,8 @@
 .bm-filter-btn {
 	text-align: left;
 	padding: 8px 12px;
-	border-radius: 6px;
-	border: 1px solid #e2e8f0;
+	/* border-radius: 6px; */
+	border: 2px solid #e2e8f0;
 	background: #ffffff;
 	font-size: 12px;
 	font-weight: 500;
@@ -251,8 +251,8 @@
 /* Card Styling */
 .bm-card {
 	background: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
+	border: 2px solid #e2e8f0;
+	/* border-radius: 8px; */
 	padding: 14px;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -276,7 +276,7 @@
 .bm-card-icon {
 	width: 18px;
 	height: 18px;
-	border-radius: 3px;
+	/* border-radius: 3px; */
 }
 
 .bm-card-title {
@@ -310,7 +310,7 @@
 	font-size: 9px;
 	font-weight: 700;
 	padding: 2px 6px;
-	border-radius: 4px;
+	/* border-radius: 4px; */
 }
 
 .badge-duplicate,
@@ -349,15 +349,15 @@
 	color: #2563eb;
 	background: #eff6ff;
 	padding: 4px;
-	border-radius: 4px;
+	/* border-radius: 4px; */
 }
 
 /* Inspector Drawer */
 .bm-inspector-panel {
 	width: 300px;
 	background: #ffffff;
-	border: 1px solid #cbd5e1;
-	border-radius: 8px;
+	border: 2px solid #cbd5e1;
+	/* border-radius: 8px; */
 	padding: 16px;
 	box-shadow: -4px 0 16px rgba(0, 0, 0, 0.05);
 }
@@ -387,8 +387,8 @@
 .bm-inspector-content input {
 	width: 100%;
 	padding: 6px;
-	border: 1px solid #cbd5e1;
-	border-radius: 4px;
+	border: 2px solid #cbd5e1;
+	/* border-radius: 4px; */
 	font-size: 12px;
 	box-sizing: border-box;
 }
@@ -399,7 +399,7 @@
 	padding: 4px 8px;
 	font-size: 10px;
 	font-weight: bold;
-	border-radius: 4px;
+	/* border-radius: 4px; */
 }
 
 .pill-duplicate {

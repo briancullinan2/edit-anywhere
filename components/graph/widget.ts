@@ -2,28 +2,16 @@ import { Widget } from '@lumino/widgets';
 import { Message } from '@lumino/messaging';
 import { LGraph, LGraphCanvas, LGraphNode, LiteGraph } from 'litegraph.js';
 import { populateDemoNodes } from './widget-nodes';
+import type { GlobalToolbarsWindow, LuminoMenuWindow } from '../bundle/menu.d';
+import type { LuminoLayoutWindow } from '../bundle/lumino.d';
 
 // Extend window scope for system-wide module/menu bindings
-type LightGraphWindow = typeof globalThis & {
-	mainDock?: any;
-	LayoutAdjuster?: {
-		addOptimalWidgetLayout(dock: any, widget: Widget, config: any): void;
-	};
-	registerAllCommands?: (menus: any) => void;
-	injectMenus?: (name: string, menus: any) => void;
-	removeMenus?: (name: string) => void;
-	settingsManager?: {
-		get(category: string, key: string): any;
-		hydrateAll(settings: any): void;
-	};
-	historyToolbar?: {
-		appendHistoryItem(payload: any, source: string): void;
-	};
-	nextTemp?: () => number;
+export type LightGraphWindow = {
 	LightGraphWidget?: typeof LightGraphWidget;
 };
 
-const appSelf = globalThis as LightGraphWindow;
+const appSelf: GlobalToolbarsWindow & LuminoLayoutWindow & LuminoMenuWindow
+	& LightGraphWindow = self as unknown as any;
 
 export interface IGraphSession
 {
@@ -297,8 +285,8 @@ export class LightGraphWidget extends Widget
 		};
 
 		LiteGraph.LINK_COLOR = blue;
-		LiteGraph .EVENT_LINK_COLOR = purple;
-		LiteGraph .CONNECTING_LINK_COLOR = pink;
+		LiteGraph.EVENT_LINK_COLOR = purple;
+		LiteGraph.CONNECTING_LINK_COLOR = pink;
 
 		// Map data types (number, string, boolean, etc.) to distinct colored wires
 		LGraphCanvas.link_type_colors = {
@@ -310,8 +298,8 @@ export class LightGraphWidget extends Widget
 		};
 
 		// 4. Override LiteGraph Text & Widget Constants
-		LiteGraph .NODE_TEXT_COLOR = foreground;
-		LiteGraph .NODE_TITLE_COLOR = foreground;
+		LiteGraph.NODE_TEXT_COLOR = foreground;
+		LiteGraph.NODE_TITLE_COLOR = foreground;
 		//LiteGraph .NODE_SELECTED_TITLE_COLOR = pink;
 
 		//LiteGraph .WIDGET_BGCOLOR = gutter;
@@ -537,7 +525,7 @@ export class LightGraphWidget extends Widget
 		if(appSelf.mainDock)
 		{
 			appSelf.LayoutAdjuster?.addOptimalWidgetLayout(appSelf.mainDock, newTab, {
-				type: 'graph',
+				type: 'editor',
 				projectId: newTab.constructor.name
 			});
 		}

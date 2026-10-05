@@ -1,6 +1,7 @@
 import { Widget } from '@lumino/widgets';
 import { Message } from '@lumino/messaging';
 import { Signal } from '@lumino/signaling';
+import { WidgetSearchBar } from '../art/widget-search';
 
 export interface IBookmarkNode
 {
@@ -37,12 +38,14 @@ export class BookmarksWidget extends Widget
 	private activeFilter: BookmarksDeltaFilter = 'all';
 	private viewMode: 'cards' | 'grid' = 'cards';
 	private selectedBookmark: IBookmarkNode | null = null;
+	public _toggleBtn?: HTMLElement | HTMLDivElement;
 
 	constructor(title: string = 'Visual Bookmark Diff & Merge')
 	{
 		super();
 		this.id = 'lumino-bookmark-manager';
 		this.title.label = title;
+		this.title.iconClass = 'bx bx-bookmarks';
 		this.addClass('bm-manager-widget');
 	}
 
@@ -50,6 +53,33 @@ export class BookmarksWidget extends Widget
 	{
 		super.onAfterAttach(msg);
 		this.renderLayout();
+		WidgetSearchBar.attachToggleIcon(this, this.renderToggleBtn, this.clickToggleBtn);
+	}
+
+
+	protected override onBeforeDetach(msg: Message): void
+	{
+		if(this._toggleBtn)
+		{
+			this._toggleBtn?.remove();
+			this._toggleBtn = undefined;
+		}
+		super.onBeforeDetach(msg);
+	}
+
+	protected renderToggleBtn(toggle: HTMLElement)
+	{
+		toggle.innerHTML = `<i class="bx ${this.viewMode === 'grid' ? 'bx-list' : 'bx-grid'}"></i>`;
+		toggle.title = this.viewMode === 'grid' ? 'List View' : 'Cards View';
+	}
+
+
+	protected clickToggleBtn()
+	{
+		this.viewMode = this.viewMode === 'grid' ? 'cards' : 'grid';
+		this.renderLayout();
+		this.fit();
+		this.update();
 	}
 
 	/**
@@ -61,9 +91,6 @@ export class BookmarksWidget extends Widget
 
 		const container = document.createElement('div');
 		container.className = 'bm-container';
-
-		// Top Action Toolbar
-		container.appendChild(this.createTopToolbar());
 
 		// Main Split Content View (Left Controls/Schema - Right Visual Grid)
 		const bodySplit = document.createElement('div');
@@ -86,22 +113,13 @@ export class BookmarksWidget extends Widget
 		const toolbar = document.createElement('div');
 		toolbar.className = 'bm-toolbar';
 
-		const titleEl = document.createElement('div');
-		titleEl.className = 'bm-toolbar-title';
-		titleEl.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-      </svg>
-      <span>Bookmark Visual Diff & Export</span>
-    `;
-
 		const actions = document.createElement('div');
 		actions.className = 'bm-toolbar-actions';
 
 		// Export Netscape HTML File
 		const btnExport = document.createElement('button');
 		btnExport.className = 'bm-btn bm-btn-primary';
-		btnExport.innerHTML = `⬇ Export Merged HTML`;
+		btnExport.innerHTML = `<i class="bx bx-arrow-in-up-square-half"></i> Export Merged`;
 		btnExport.onclick = () => this.handleExportHTML();
 
 		// Print / Save to PDF
@@ -111,22 +129,21 @@ export class BookmarksWidget extends Widget
 		btnPdf.onclick = () => window.print();
 
 		// View Toggle Buttons (Cards vs Grid)
-		const btnCards = document.createElement('button');
-		btnCards.className = `bm-btn bm-btn-icon ${this.viewMode === 'cards' ? 'active' : ''}`;
-		btnCards.innerText = '🔲 Grid';
-		btnCards.onclick = () => { this.viewMode = 'cards'; this.renderLayout(); };
+		// const btnCards = document.createElement('button');
+		// btnCards.className = `bm-btn bm-btn-icon ${this.viewMode === 'cards' ? 'active' : ''}`;
+		// btnCards.innerText = '🔲 Grid';
+		// btnCards.onclick = () => { this.viewMode = 'cards'; this.renderLayout(); };
 
-		const btnGrid = document.createElement('button');
-		btnGrid.className = `bm-btn bm-btn-icon ${this.viewMode === 'grid' ? 'active' : ''}`;
-		btnGrid.innerText = '☰ List';
-		btnGrid.onclick = () => { this.viewMode = 'grid'; this.renderLayout(); };
+		// const btnGrid = document.createElement('button');
+		// btnGrid.className = `bm-btn bm-btn-icon ${this.viewMode === 'grid' ? 'active' : ''}`;
+		// btnGrid.innerText = '☰ List';
+		// btnGrid.onclick = () => { this.viewMode = 'grid'; this.renderLayout(); };
 
 		actions.appendChild(btnPdf);
 		actions.appendChild(btnExport);
-		actions.appendChild(btnCards);
-		actions.appendChild(btnGrid);
+		// actions.appendChild(btnCards);
+		// actions.appendChild(btnGrid);
 
-		toolbar.appendChild(titleEl);
 		toolbar.appendChild(actions);
 
 		return toolbar;
@@ -225,6 +242,8 @@ export class BookmarksWidget extends Widget
 
 		filterSection.appendChild(filterGroup);
 
+		// Top Action Toolbar
+		panel.appendChild(this.createTopToolbar());
 		panel.appendChild(dropzone);
 		panel.appendChild(fileListSection);
 		panel.appendChild(schemaSection);

@@ -43,7 +43,8 @@ export const OUTLINE_WIDGET_TYPES = [
 	'GithubListWidget', 'SearchListWidget',
 	'SkillsWidget', 'GoogleDriveWidget',
 	'HttpIndexWidget', 'PlaylistWidget',
-	'XRayPanelWidget', 'ThreadListWidget'
+	'XRayPanelWidget', 'ThreadListWidget',
+	'ToolsSidebar'
 ];
 
 

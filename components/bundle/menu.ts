@@ -168,7 +168,7 @@ export const TOOLS_REGISTRY: Record<string, ComponentRoute> = {
 		description: 'Configures application runtime behaviors, key bindings, auto-save intervals, and external service credentials.'
 	},
 	'bookmarks': {
-		label: 'Bookmark Manager',
+		label: 'Bookmark Merge',
 		url: './components/bookmarks/widget.ts',
 		className: 'BookmarksWidget',
 		iconClass: 'bx bx-bookmarks',
@@ -276,7 +276,7 @@ menuSelf.TERMINAL_REGISTRY = TERMINAL_REGISTRY;
 
 export async function triggerPanelRoute(panelId: string, mainDock: DockPanel, noHide: boolean = false): Promise<void>
 {
-	const route = MODULE_REGISTRY[panelId];
+	const route = MODULE_REGISTRY[panelId] ?? TOOLS_REGISTRY[panelId];
 	/*TODO: this applied only to file open
 	if(panelId === 'viewport-frame')
 	{

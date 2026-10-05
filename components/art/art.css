@@ -1,0 +1,63 @@
+@import '/components/art/pill.css';
+@import '/components/art/style.css';
+@import '/components/art/coverflow.css';
+
+/* Container & Widget Shell */
+.clipart-drive-widget {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	background-color: #12131c;
+	color: #e2e8f0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	overflow-y: auto;
+	box-sizing: border-box;
+	padding: 20px;
+}
+
+/* Category & Subject Pill Navigation */
+.art-nav-section {
+	margin-bottom: 20px;
+}
+
+.art-nav-title {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin: 0 0 12px 0;
+	color: #ffffff;
+}
+
+
+/* Sub-Style / Prompt Filter Tags */
+.art-style-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+.art-style-tag {
+	background: #17192a;
+	border: 1px solid #2a2d48;
+	color: #8b92be;
+	padding: 6px 14px;
+	border-radius: 6px;
+	font-size: 0.8rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.art-style-tag:hover {
+	background: #252846;
+	color: #ffffff;
+}
+
+.art-style-tag.active {
+	background: #3b82f6;
+	color: #ffffff;
+	border-color: #60a5fa;
+	box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+

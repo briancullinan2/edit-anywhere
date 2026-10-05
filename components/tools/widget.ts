@@ -1,10 +1,13 @@
 import { Widget } from '@lumino/widgets';
 import type { ComponentRoute } from '../bundle/menu';
-import type { RepositorySettingsWindow } from '../bundle/menu.d';
+import type { GlobalToolbarsWindow, LuminoMenuWindow, RepositorySettingsWindow } from '../bundle/menu.d';
 import type { LuminoLayoutWindow } from '../bundle/lumino.d';
+import { ToolsSidebar } from './widget-sidebar';
+import { Message } from '@lumino/messaging';
 
 
-const widgetSelf: LuminoLayoutWindow & RepositorySettingsWindow = self as unknown as any;
+const widgetSelf: GlobalToolbarsWindow & LuminoMenuWindow & LuminoLayoutWindow
+	& RepositorySettingsWindow = self as unknown as any;
 
 
 export interface ToolsDetailsWidgetOptions
@@ -21,15 +24,14 @@ export class ToolsWidget extends Widget
 {
 	private _registry?: Record<string, ComponentRoute>;
 	private _selectedKey: string | null = null;
-	private _onSelectTool?: (key: string, route: ComponentRoute) => void;
-
-	private _searchQuery: string = '';
-	private _sidebarContainer!: HTMLDivElement;
-	private _detailsContainer!: HTMLElement;
-	private _searchInput!: HTMLInputElement;
-	private _modulesContainer!: HTMLDivElement;
+	private _onSelectTool?: (key: string, route: ComponentRoute) => void = (key) =>
+	{
+		widgetSelf.triggerPanelRoute?.(key, widgetSelf.mainDock);
+	};
 
 	modules: Record<string, Record<string, Function>> = LOCAL_COMMANDS;
+	private _detailsContainer!: HTMLElement;
+	private _toolsSidebar?: ToolsSidebar;
 
 
 	constructor(title?: string, options: ToolsDetailsWidgetOptions = {})
@@ -56,6 +58,30 @@ export class ToolsWidget extends Widget
 		}
 	}
 
+	public processMessage(msg: Message): void
+	{
+		if(msg.type === 'close-request')
+		{
+			this._toolsSidebar?.close();
+		}
+
+		super.processMessage(msg);
+	}
+
+
+	protected override onBeforeHide(msg: Message): void
+	{
+		this._toolsSidebar?.close();
+		super.onBeforeHide(msg);
+	}
+
+
+	protected override onBeforeDetach(msg: Message): void
+	{
+		this._toolsSidebar?.close();
+		super.onBeforeDetach(msg);
+	}
+
 	/**
 	 * Programmatically select a tool by its key.
 	 */
@@ -63,7 +89,7 @@ export class ToolsWidget extends Widget
 	{
 		if(!this._registry?.[key] && !widgetSelf.MODULE_REGISTRY?.[key]) return;
 		this._selectedKey = key;
-		this._renderSidebar();
+		// this._renderSidebar();
 		this._renderDetails();
 
 		if(this._onSelectTool)
@@ -78,7 +104,7 @@ export class ToolsWidget extends Widget
 	public updateRegistry(newRegistry: Record<string, ComponentRoute>): void
 	{
 		this._registry = newRegistry;
-		this._renderSidebar();
+		// this._renderSidebar();
 		if(this._selectedKey && this._registry[this._selectedKey])
 		{
 			this._renderDetails();
@@ -91,166 +117,53 @@ export class ToolsWidget extends Widget
 
 	protected onAfterAttach(): void
 	{
-		this._renderSidebar();
+		if(this._toolsSidebar && !this._toolsSidebar.isAttached)
+		{
+			this.openSidebar();
+		}
 		if(this._selectedKey)
 		{
 			this._renderDetails();
 		}
 	}
 
+	protected override onAfterShow(msg: Message): void
+	{
+		super.onAfterShow(msg);
+		this.openSidebar();
+	}
+
+	private openSidebar()
+	{
+		const that = this;
+		setTimeout(() =>
+		{
+			if(widgetSelf.mainDock && widgetSelf.LayoutAdjuster && that._toolsSidebar)
+			{
+				if(!this._toolsSidebar?.isAttached)
+				{
+					widgetSelf.LayoutAdjuster?.addOptimalWidgetLayout(widgetSelf.mainDock, that._toolsSidebar, {
+						type: 'outline',
+						projectId: that._toolsSidebar?.constructor.name
+					});
+				}
+			}
+		}, 300);
+	}
+
 	private _buildUI(): void
 	{
 		this.node.innerHTML = '';
-
-		// Master container
-		const layoutWrapper = document.createElement('div');
-		layoutWrapper.className = 'tools-details-layout';
-
-		// Sidebar panel
-		const sidebar = document.createElement('aside');
-		sidebar.className = 'tools-sidebar';
-
-		const sidebarHeader = document.createElement('div');
-		sidebarHeader.className = 'tools-sidebar-header';
-		sidebarHeader.innerHTML = `<h3><i class="bx bx-spanner"></i> Tool Set</h3>`;
-
-		const searchBox = document.createElement('div');
-		searchBox.className = 'tools-search-box';
-
-		this._searchInput = document.createElement('input');
-		this._searchInput.type = 'text';
-		this._searchInput.placeholder = 'Filter tools...';
-		this._searchInput.addEventListener('input', (e) =>
-		{
-			this._searchQuery = (e.target as HTMLInputElement).value.toLowerCase();
-			this._renderSidebar();
-		});
-
-		searchBox.appendChild(this._searchInput);
-
-		this._sidebarContainer = document.createElement('div');
-		this._sidebarContainer.className = 'tools-list';
-
-		sidebar.appendChild(sidebarHeader);
-		sidebar.appendChild(searchBox);
-		sidebar.appendChild(this._sidebarContainer);
 
 		// Main Details panel
 		this._detailsContainer = document.createElement('main') as HTMLElement;
 		this._detailsContainer.className = 'tools-details-view';
 
-		layoutWrapper.appendChild(sidebar);
-		layoutWrapper.appendChild(this._detailsContainer);
+		this._toolsSidebar = new ToolsSidebar();
 
-		this.node.appendChild(layoutWrapper);
-		this._buildModules(sidebar);
+		this.node.appendChild(this._detailsContainer);
 	}
 
-
-	private _buildModules(sidebar: HTMLElement): void
-	{
-
-		const sidebarHeader = document.createElement('div');
-		sidebarHeader.className = 'tools-sidebar-header';
-		sidebarHeader.innerHTML = `<h3><i class="bx bx-cog"></i> Modules</h3>`;
-
-		sidebar.appendChild(sidebarHeader);
-		// sidebar.appendChild(searchBox);
-
-		this._modulesContainer = document.createElement('div');
-		this._modulesContainer.className = 'tools-list';
-		sidebar.appendChild(this._modulesContainer);
-
-	}
-
-
-	private _renderSidebar(): void
-	{
-		if(!this._sidebarContainer || !this._registry) return;
-		this._sidebarContainer.innerHTML = '';
-
-		const entries = Object.entries(this._registry).filter(([key, route]) =>
-		{
-			if(!this._searchQuery) return true;
-			return (
-				route.label.toLowerCase().includes(this._searchQuery) ||
-				key.toLowerCase().includes(this._searchQuery) ||
-				(route.description && route.description.toLowerCase().includes(this._searchQuery))
-			);
-		});
-
-		if(entries.length === 0)
-		{
-			const emptyMsg = document.createElement('div');
-			emptyMsg.className = 'tools-empty-state';
-			emptyMsg.textContent = 'No matching tools found';
-			this._sidebarContainer.appendChild(emptyMsg);
-			return;
-		}
-
-		entries.forEach(([key, route]) =>
-		{
-			const item = document.createElement('div');
-			item.className = `tools-item ${key === this._selectedKey ? 'active' : ''}`;
-			item.onclick = () => this.selectTool(key);
-
-			item.innerHTML = `
-        <div class="tools-item-icon"><i class="${route.iconClass}"></i></div>
-        <div class="tools-item-meta">
-          <span class="tools-item-title">${this._escapeHTML(route.label)}</span>
-          <span class="tools-item-key">${this._escapeHTML(key)}</span>
-        </div>
-      `;
-
-			this._sidebarContainer.appendChild(item);
-		});
-
-		this._renderModules();
-
-	}
-
-	private _renderModules(): void
-	{
-		if(!this._modulesContainer || !widgetSelf.MODULE_REGISTRY) return;
-		this._modulesContainer.innerHTML = '';
-
-		const entries = Object.entries(widgetSelf.MODULE_REGISTRY).filter(([key, route]) =>
-		{
-			if(!route.url) return false;
-			if(!this._searchQuery) return true;
-			return (
-				route.label.toLowerCase().includes(this._searchQuery) ||
-				key.toLowerCase().includes(this._searchQuery) ||
-				(route.description && route.description.toLowerCase().includes(this._searchQuery))
-			);
-		});
-
-		if(entries.length === 0)
-		{
-			const emptyMsg = document.createElement('div');
-			emptyMsg.className = 'tools-empty-state';
-			emptyMsg.textContent = 'No matching tools found';
-			this._modulesContainer.appendChild(emptyMsg);
-			return;
-		}
-
-		entries.forEach(([key, route]) =>
-		{
-			const item = document.createElement('div');
-			item.className = `tools-item ${key === this._selectedKey ? 'active' : ''}`;
-			item.onclick = () => this.selectTool(key);
-
-			item.innerHTML = `
-        <div class="tools-item-icon"><i class="${route.iconClass}"></i></div>
-        <div class="tools-item-meta">
-          <span class="tools-item-title">${this._escapeHTML(route.label)}</span>
-          <span class="tools-item-key">${this._escapeHTML(key)}</span>
-        </div>
-      `;
-
-			this._modulesContainer.appendChild(item);
-		});
-	}
 
 	private _renderDetails(): void
 	{

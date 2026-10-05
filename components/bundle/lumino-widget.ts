@@ -5,7 +5,7 @@ import type { GlobalToolbarsWindow, LuminoMenuWindow } from './menu.d';
 import type { AceEditorWidget } from '../editor/widget';
 import type { TerminalWidget } from '../terminal/widget';
 import { historyToolbar } from './menu-history';
-import { MODULE_REGISTRY, TERMINAL_REGISTRY } from './menu';
+import { MODULE_REGISTRY, TERMINAL_REGISTRY, TOOLS_REGISTRY } from './menu';
 import { SHORT_NAME } from './global';
 
 export const WIDESCREEN = 1200;
@@ -80,10 +80,11 @@ export function updateHashFromWidget(shownWidget: Widget)
 		history.pushState({ location: '/#' + filterId, title: title }, title, '#' + filterId);
 	} else // if(OUTLINE_WIDGET_TYPES.includes(widgetTypeName))
 	{
-		const widgetKey = Object.keys(MODULE_REGISTRY).find(key => MODULE_REGISTRY[key].className === widgetTypeName);
+		const widgetKey = Object.keys(MODULE_REGISTRY).find(key => MODULE_REGISTRY[key].className === widgetTypeName)
+			?? Object.keys(TOOLS_REGISTRY).find(key => TOOLS_REGISTRY[key].className === widgetTypeName);
 		if(widgetKey)
 		{
-			const title = `${widgetKey ? MODULE_REGISTRY[widgetKey].label : shownWidget.title.label} · ${SHORT_NAME}`;
+			const title = `${widgetKey ? (MODULE_REGISTRY[widgetKey].label ?? TOOLS_REGISTRY[widgetKey].label) : shownWidget.title.label} · ${SHORT_NAME}`;
 			document.title = title;
 			history.pushState({ location: '/#' + widgetKey, title: title }, title, '#' + widgetKey);
 		}
