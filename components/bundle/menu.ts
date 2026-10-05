@@ -769,55 +769,58 @@ export async function renderHashCommand(targetHashName: string, noBounce: boolea
 		hashDebounceTimer = setTimeout(() =>
 		{
 			renderHashCommand(rawTarget, true);
-		}, 100);
+		}, 200);
 		return;
 	}
 
 	if(!rawTarget || rawTarget.length === 0) return;
 	menuSelf.previousHashLineNumber = null;
-
-	const matchedRoute = MODULE_REGISTRY[rawTarget];
-	if(matchedRoute)
-	{
-		// Activate registered panel/widget via your main dock panel router
-		if(menuSelf.mainDock)
-		{
-			await triggerPanelRoute(rawTarget, menuSelf.mainDock, true);
-		}
-		return;
-	}
-
-	const matchedTerminal = TERMINAL_REGISTRY.find(t => t.id === rawTarget);
-	if(matchedTerminal)
-	{
-		if(menuSelf.mainDock)
-		{
-			await triggerPanelRoute('terminal-container', menuSelf.mainDock, true);
-		}
-
-		const currentDOMWidgets = Array.from(menuSelf.mainDock?.widgets() ?? []);
-
-		// Locate any active TerminalWidget whose filterId or DOM element ID matches target
-		const existingTerminalWidget = currentDOMWidgets.find((w: any) =>
-			w.constructor?.name === 'TerminalWidget' &&
-			(w.filterId === rawTarget || w.id === `terminal-panel-${rawTarget}` || w.id === rawTarget)
-		);
-
-		if(existingTerminalWidget)
-		{
-			// Activate and bring tab to front immediately
-			menuSelf.mainDock?.activateWidget(existingTerminalWidget);
-			existingTerminalWidget.activate();
-			return;
-		}
-	}
-
 	try
 	{
+		menuSelf.renderingHashCommand = true;
+		const matchedRoute = MODULE_REGISTRY[rawTarget] ?? TOOLS_REGISTRY[rawTarget];
+		if(matchedRoute)
+		{
+			// Activate registered panel/widget via your main dock panel router
+			if(menuSelf.mainDock)
+			{
+				await triggerPanelRoute(rawTarget, menuSelf.mainDock, true);
+			}
+			return;
+		}
+
+		const matchedTerminal = TERMINAL_REGISTRY.find(t => t.id === rawTarget);
+		if(matchedTerminal)
+		{
+			if(menuSelf.mainDock)
+			{
+				await triggerPanelRoute('terminal-container', menuSelf.mainDock, true);
+			}
+
+			const currentDOMWidgets = Array.from(menuSelf.mainDock?.widgets() ?? []);
+
+			// Locate any active TerminalWidget whose filterId or DOM element ID matches target
+			const existingTerminalWidget = currentDOMWidgets.find((w: any) =>
+				w.constructor?.name === 'TerminalWidget' &&
+				(w.filterId === rawTarget || w.id === `terminal-panel-${rawTarget}` || w.id === rawTarget)
+			);
+
+			if(existingTerminalWidget)
+			{
+				// Activate and bring tab to front immediately
+				menuSelf.mainDock?.activateWidget(existingTerminalWidget);
+				existingTerminalWidget.activate();
+				return;
+			}
+		}
+
 		await FileManager.navigateFile(rawTarget);
 	} catch(err)
 	{
 		console.error(`[HashRouter] Failed to resolve target file path for hash #${rawTarget}:`, err);
+	} finally
+	{
+		menuSelf.renderingHashCommand = false;
 	}
 }
 

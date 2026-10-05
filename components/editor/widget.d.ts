@@ -35,4 +35,5 @@ export interface EditorWindow
 	diagnosticsBridge?: any;
 	AceEditorWidget?: typeof AceEditorWidget;
 	previousHashLineNumber?: number | null;
+	renderingHashCommand: boolean;
 }
