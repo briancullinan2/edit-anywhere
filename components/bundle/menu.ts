@@ -39,6 +39,7 @@ export interface TerminalFilter
 
 export interface ComponentRoute
 {
+	key?: string;
 	label: string;
 	url?: string;
 	className?: string;
@@ -49,27 +50,207 @@ export interface ComponentRoute
 
 // 1. Unified metadata tree tracking every panel type and icon token
 export const MODULE_REGISTRY: Record<string, ComponentRoute> = {
-	'collapse': { label: 'Collapse', iconClass: 'bx bx-arrow-in-left-square-half' },
-	'writer': { label: 'Content Writer', url: './components/writer/widget.ts', className: 'WriterWidget', iconClass: 'bx bx-code-alt' },
-	'scroll': { label: 'Layout Manager', url: './components/template/widget.ts', className: 'TemplateWidget', iconClass: 'bx bx-scroll' },
-	'theme': { label: 'Theme Writer', url: './components/content/widget-theme.ts', className: 'ThemeWidget', iconClass: 'bx bx-brightness-half' },
-	'database': { label: 'Secure Storage', url: './components/filelist/widget-database.ts', className: 'DatabaseListWidget', iconClass: 'bx bx-database' },
-	//'analytics': { label: 'Analytics', url: './components/analytics/widget.ts', className: 'AnalyticsWidget', iconClass: 'bx bx-chart-trend' },
-	//'analysis': { label: 'Content Analysis', url: './components/analysis/widget.ts', className: 'AnalysisWidget', iconClass: 'bx bx-calendar-heart' },
-	'shop': { label: 'Merchant Tools', url: './components/shop/widget.ts', className: 'MerchantWidget', iconClass: 'bx bx-store' },
-	'backups': { label: 'Backups/Export', url: './components/backups/widget.ts', className: 'BackupsWidget', iconClass: 'bx bx-hard-drive' },
-	'tools': { label: 'Writing Tools', url: './components/tools/widget.ts', className: 'ToolsWidget', iconClass: 'bx bx-note-book' },
-	'chat': { label: 'Curation', url: './components/chat/widget.ts', className: 'ChatWidget', iconClass: 'bx bx-robot' },
+	'collapse': {
+		label: 'Collapse',
+		iconClass: 'bx bx-arrow-in-left-square-half',
+		subtext: 'Requires Lumino DockPanel container references and UI state layout persistence.',
+		description: 'Collapses active sidebars or secondary workspace panels to maximize primary viewing space across media and storage widgets.'
+	},
+	'writer': {
+		label: 'Content Writer',
+		url: './components/writer/widget.ts',
+		className: 'WriterWidget',
+		iconClass: 'bx bx-code-alt',
+		subtext: 'Requires rich-text editor bindings, markdown parsers, and live document state signals.',
+		description: 'Provides a distraction-free environment for drafting, editing, and formatting structured content with real-time preview tools.'
+	},
+	'scroll': {
+		label: 'Layout Manager',
+		url: './components/template/widget.ts',
+		className: 'TemplateWidget',
+		iconClass: 'bx bx-scroll',
+		subtext: 'Requires Lumino Widget lifecycle management and pre-built layout template definitions.',
+		description: 'Generates and organizes structured page layouts, allowing fast selection and rendering of multi-section document templates.'
+	},
+	'theme': {
+		label: 'Theme Writer',
+		url: './components/content/widget-theme.ts',
+		className: 'ThemeWidget',
+		iconClass: 'bx bx-brightness-half',
+		subtext: 'Requires CSS variable injection engines and workspace-wide color palette state.',
+		description: 'Customizes application visual themes, typography, and styling variables dynamically across all active workspace widgets.'
+	},
+	'database': {
+		label: 'Secure Storage',
+		url: './components/filelist/widget-database.ts',
+		className: 'DatabaseListWidget',
+		iconClass: 'bx bx-database',
+		subtext: 'Requires IndexedDB or local database connection providers and encryption handlers.',
+		description: 'Manages encrypted local datasets, stored credentials, and structured records with secure query and retrieval features.'
+	},
+	'shop': {
+		label: 'Merchant Tools',
+		url: './components/shop/widget.ts',
+		className: 'MerchantWidget',
+		iconClass: 'bx bx-store',
+		subtext: 'Requires commerce API integration hooks and product catalog schema definitions.',
+		description: 'Facilitates product listings, store management, transaction tracking, and inventory sync for content creator storefronts.'
+	},
+	'backups': {
+		label: 'Backups/Export',
+		url: './components/backups/widget.ts',
+		className: 'BackupsWidget',
+		iconClass: 'bx bx-hard-drive',
+		subtext: 'Requires file system compression utilities and scheduled snapshot background handlers.',
+		description: 'Handles complete workspace data backups, automated snapshots, and bulk exports in standardized file formats.'
+	},
+	'tools': {
+		label: 'Writing Tools',
+		url: './components/tools/widget.ts',
+		className: 'ToolsWidget',
+		iconClass: 'bx bx-note-book',
+		subtext: 'Requires clipboard management services and text transformation helper utilities.',
+		description: 'Offers utility helpers including string formatters, word counters, text clean-up scripts, and quick reference notes.'
+	},
+	'chat': {
+		label: 'Curation',
+		url: './components/chat/widget.ts',
+		className: 'ChatWidget',
+		iconClass: 'bx bx-robot',
+		subtext: 'Requires LLM API client interfaces and prompt pipeline state synchronization.',
+		description: 'Provides AI-assisted content curation, automated brainstorming, and interactive context-aware document generation.'
+	},
+	'searchlist': {
+		label: 'Search Files',
+		url: './components/filelist/widget-search.ts',
+		className: 'SearchListWidget',
+		iconClass: 'bx bx-search',
+		subtext: 'Requires full-text search indexing engines and fuzzy matching query routines.',
+		description: 'Executes rapid full-text queries across stored documents, metadata tags, and file directory structures.'
+	},
+	//'filelist': {
+	//	label: 'Secure Storage',
+	//	url: './components/filelist/widget.ts',
+	//	className: 'FileListWidget',
+	//	iconClass: 'bi bi-database-lock',
+	//	subtext: 'Requires file system access tokens and cryptographic key management.',
+	//	description: 'Browse, lock, and organize protected document archives with cryptographic access controls.'
+	//},
 
-	'searchlist': { label: 'Search Files', url: './components/filelist/widget-search.ts', className: 'SearchListWidget', iconClass: 'bx bx-search' },
-	//'filelist': { label: 'Secure Storage', url: './components/filelist/widget.ts', className: 'FileListWidget', iconClass: 'bi bi-database-lock' },
-	//'settings': { label: 'Edit Settings', url: './components/editor/widget-settings.ts', className: 'SettingsWidget', iconClass: 'bx bx-gear' },
-	'terminal-container': { label: 'Show Console', url: './components/terminal/widget.ts', className: 'TerminalWidget', iconClass: 'bx bx-terminal' },
-	'graph': { label: 'Workflow Graph', url: './components/graph/widget.ts', className: 'LightGraphWidget', iconClass: 'bx bx-chart-stacked-rows' },
+	'terminal-container': {
+		label: 'Show Console',
+		url: './components/terminal/widget.ts',
+		className: 'TerminalWidget',
+		iconClass: 'bx bx-terminal',
+		subtext: 'Requires virtual terminal emulators (xterm.js) and command execution sockets.',
+		description: 'Renders an embedded interactive terminal console for running workspace scripts, CLI tools, and system diagnostics.'
+	},
+	'graph': {
+		label: 'Workflow Graph',
+		url: './components/graph/widget.ts',
+		className: 'LightGraphWidget',
+		iconClass: 'bx bx-chart-stacked-rows',
+		subtext: 'Requires canvas rendering engines (LiteGraph) and node-link data structures.',
+		description: 'Visualizes document dependencies, automated content pipelines, and node-based logic flows in an interactive graph canvas.'
+	},
 };
 
 
 menuSelf.MODULE_REGISTRY = MODULE_REGISTRY;
+
+export const TOOLS_REGISTRY: Record<string, ComponentRoute> = {
+	'settings': {
+		label: 'Edit Settings',
+		url: './components/editor/widget-settings.ts',
+		className: 'SettingsWidget',
+		iconClass: 'bx bx-gear',
+		subtext: 'Requires local storage key-value stores and user preference synchronization.',
+		description: 'Configures application runtime behaviors, key bindings, auto-save intervals, and external service credentials.'
+	},
+	'bookmarks': {
+		label: 'Bookmark Manager',
+		url: './components/bookmarks/widget.ts',
+		className: 'BookmarksWidget',
+		iconClass: 'bx bx-bookmarks',
+		subtext: 'Requires multi-file drag-and-drop parsers, Netscape HTML/Chrome JSON decoders, and schema diff algorithms.',
+		description: 'Visualizes, diffs, and merges bookmark structures across temporal exports with custom target folder schema matching, PDF generation, and color-coded status tracking.'
+	},
+	'queue': {
+		label: 'Download & PDF Queue',
+		url: './components/queue/widget.ts',
+		className: 'QueueWidget',
+		iconClass: 'bx bx-archive-arrow-down',
+		subtext: 'Requires background web worker threads, headless print engines, and blob download batching queues.',
+		description: 'Manages automated document conversions, PDF generation pipelines, and bulk file downloads with real-time progress tracking, priority reordering, and retry controls.'
+	},
+	'analytics': {
+		label: 'Analytics',
+		url: './components/analytics/widget.ts',
+		className: 'AnalyticsWidget',
+		iconClass: 'bx bx-chart-trend',
+		subtext: 'Requires telemetry event listeners and chart aggregation libraries.',
+		description: 'Tracks document engagement, content production metrics, and system activity trends via interactive visual summaries.'
+	},
+	'analysis': {
+		label: 'Content Analysis',
+		url: './components/analysis/widget.ts',
+		className: 'AnalysisWidget',
+		iconClass: 'bx bx-calendar-heart',
+		subtext: 'Requires natural language processing routines and readability scoring engines.',
+		description: 'Evaluates text complexity, sentiment, tone consistency, and key phrase distribution across active writing projects.'
+	},
+	'scraper': {
+		label: 'Web Scraper',
+		url: './components/scraper/widget.ts',
+		className: 'ScraperWidget',
+		iconClass: 'bx bx-radar',
+		subtext: 'Requires DOM parsing drivers, selector engine matching, CORS proxies, and batch crawl queues.',
+		description: 'Extracts structured data, metadata tags, and linked assets from web pages using custom CSS selectors, regex patterns, and proxy pipeline integration.'
+	},
+	'targets': {
+		label: 'Publishing Targets',
+		url: './components/targets/widget.ts',
+		className: 'TargetsWidget',
+		iconClass: 'bx bx-share',
+		subtext: 'Requires platform authentication adapters, OAuth credential stores, and API payload transformers.',
+		description: 'Centralized control panel for configuring, authenticating, and mapping external content syndication targets including Patreon, Medium, and wikiHow.'
+	},
+	'addons': {
+		label: 'Plugins & Addons',
+		url: './components/addons/widget.ts',
+		className: 'AddonsWidget',
+		iconClass: 'bx bx-extension',
+		subtext: 'Requires dynamic ES module loaders, Lumino widget registry hooks, and cross-platform manifest parsers.',
+		description: 'Procures, installs, and manages external Lumino-compatible widgets and extension bundles from remote repositories and connected creator platforms.'
+	},
+	'keystore': {
+		label: 'Encrypted Keystore',
+		url: './components/keystore/widget.ts',
+		className: 'KeystoreWidget',
+		iconClass: 'bx bx-key',
+		subtext: 'Requires Web Crypto API algorithms (AES-GCM), master passphrase derivation (PBKDF2), and secure memory storage.',
+		description: 'Secure vault for storing, encrypting, and injecting API keys, access tokens, and sensitive platform credentials without exposing raw values in plain text or local storage.'
+	},
+	'integrations': {
+		label: 'Workflow Integrations',
+		url: './components/integrations/widget.ts',
+		className: 'IntegrationsWidget',
+		iconClass: 'bx bx-git-merge',
+		subtext: 'Requires OAuth2 connection managers, webhook listeners, and bi-directional API payload transformers.',
+		description: 'Connects external productivity and task management tools like Notion, Evernote, and Jira directly into your publishing workflow to sync drafts, sync ticket states, and trigger content releases.'
+	},
+	'server-status': {
+		label: 'Server & Proxy Status',
+		url: './components/server/widget.ts',
+		className: 'ServerStatusWidget',
+		iconClass: 'bx bx-server',
+		subtext: 'Requires HTTP ping probes, Cloudflare tunnel diagnostic APIs, and CORS proxy health checks.',
+		description: 'Monitors real-time HTTP server connectivity, verifies proxy status, and tests Cloudflare tunnel configurations to ensure uninterrupted outbound requests and publishing workflows.'
+	},
+};
+
+
+menuSelf.TOOLS_REGISTRY = TOOLS_REGISTRY;
 
 
 export const TERMINAL_REGISTRY: TerminalFilter[] = [

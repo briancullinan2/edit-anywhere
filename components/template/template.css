@@ -24,6 +24,10 @@
 	flex-direction: column;
 	overflow: hidden;
 	overflow-x: auto;
+	width: max-content;
+	max-width: 100%;
+	justify-content: flex-start;
+	align-items: flex-end;
 }
 
 .docs-homescreen-templates-templateview {

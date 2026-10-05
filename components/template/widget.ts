@@ -21,7 +21,7 @@ export class LayoutWidget extends Widget
 
 	private categories: ITemplateCategory[];
 
-	constructor(title?: string, categories: ITemplateCategory[] = CONTENT_LAYOUT_TEMPLATE_CATEGORIES)
+	constructor(title?: string, categories: ITemplateCategory[] = [...DEFAULT_TEMPLATE_CATEGORIES, ...CONTENT_LAYOUT_TEMPLATE_CATEGORIES])
 	{
 		super();
 		this.title.label = title ?? 'Templates';
