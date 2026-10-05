@@ -22,6 +22,7 @@ export class VirtualWriterScrollerWidget extends Widget
 	private _activeWidgetPool: Map<string, CellEditorWidget> = new Map();
 	private _defaultCellHeight = 160;
 	private _bufferPx = 400;
+	public static hiddenOffscreen: HTMLDivElement;
 
 	constructor()
 	{
@@ -76,32 +77,58 @@ export class VirtualWriterScrollerWidget extends Widget
 	 */
 	private async discoverHeightsPass(): Promise<void>
 	{
-		const hiddenOffscreen = document.createElement('div');
-		hiddenOffscreen.style.cssText = `position: absolute; visibility: hidden; width: ${this.node.clientWidth || 800}px; top: -9999px; left: -9999px; pointer-events: none;`;
-		document.body.appendChild(hiddenOffscreen);
+		if(!VirtualWriterScrollerWidget.hiddenOffscreen)
+		{
+			VirtualWriterScrollerWidget.hiddenOffscreen = document.createElement('div');
+			VirtualWriterScrollerWidget.hiddenOffscreen.id = 'hidden-writer-container';
+			VirtualWriterScrollerWidget.hiddenOffscreen.style.cssText = `position: absolute; visibility: hidden; width: ${this.node.clientWidth || 800}px; top: -9999px; left: -9999px; pointer-events: none;`;
+			document.body.appendChild(VirtualWriterScrollerWidget.hiddenOffscreen);
+		}
 
 		for(const cell of this._cells)
 		{
-			if(!this._cellHeights.has(cell.id))
+			if(this._cellHeights.has(cell.id))
 			{
-				const tempWidget = new CellEditorWidget(cell);
-				Widget.attach(tempWidget, hiddenOffscreen);
-
-				await new Promise((res) => requestAnimationFrame(res));
-
-				const measured = tempWidget.node.getBoundingClientRect().height || this._defaultCellHeight;
-				this._cellHeights.set(cell.id, Math.max(measured, 60));
-				cell.height = this._cellHeights.get(cell.id);
-
-				Widget.detach(tempWidget);
-				tempWidget.dispose();
+				continue;
 			}
+
+			const tempWidget = new CellEditorWidget(cell);
+			Widget.attach(tempWidget, VirtualWriterScrollerWidget.hiddenOffscreen);
+
+			await new Promise((res) => requestAnimationFrame(res));
+
+			const measured = await Promise.race([
+				new Promise((res) =>
+				{
+					const sub = (_: any, h: number) =>
+					{
+						tempWidget.heightMeasured.disconnect(sub);
+						res(h);
+					};
+					tempWidget.heightMeasured.connect(sub);
+				}),
+				new Promise((res) => setTimeout(res, 300))
+					.then(() =>
+					{
+						const measured = tempWidget.node.getBoundingClientRect().height || this._defaultCellHeight;
+						return measured;
+					})
+			]) as number;
+
+			this._cellHeights.set(cell.id, Math.max(measured, 60));
+			cell.height = this._cellHeights.get(cell.id);
+
+			if(tempWidget.isAttached)
+			{
+				Widget.detach(tempWidget);
+			}
+			tempWidget.dispose();
 		}
 
-		if(document.body.contains(hiddenOffscreen))
-		{
-			document.body.removeChild(hiddenOffscreen);
-		}
+		// if(document.body.contains(hiddenOffscreen))
+		// {
+		// 	document.body.removeChild(hiddenOffscreen);
+		// }
 	}
 
 	private recalculateTotalHeight(): void
@@ -158,6 +185,8 @@ export class VirtualWriterScrollerWidget extends Widget
 
 					this._activeWidgetPool.set(cell.id, widget);
 					Widget.attach(widget, this._poolContainer);
+					widget.fit();
+					widget.update();
 				}
 
 				// Translate cell into relative viewport coordinates

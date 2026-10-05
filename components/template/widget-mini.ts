@@ -1,11 +1,14 @@
 import type { ITemplateItem } from './template';
+import type { LuminoLayoutWindow } from '../bundle/lumino.d';
+
+const widgetSelf: LuminoLayoutWindow = self as unknown as any;
 
 export class TemplateMiniatureRenderer
 {
 	public static renderMiniature(template: ITemplateItem): HTMLElement
 	{
 		const container = document.createElement('div');
-		container.id = 'template-mini-' + Date.now();
+		container.id = 'template-mini-' + Date.now() + '-' + widgetSelf.nextTemp?.();
 		container.className = 'template-mini-viewport';
 
 		const styleEl = document.createElement('style');

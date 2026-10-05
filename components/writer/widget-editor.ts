@@ -2,8 +2,18 @@ import { Widget } from '@lumino/widgets';
 import { Message } from '@lumino/messaging';
 import { Signal } from '@lumino/signaling';
 import { marked } from 'marked';
+import type TurndownService from 'turndown';
 import * as fabric from 'fabric';
 import type { ICellModel, ICellRendererModule } from './widget.d';
+import type { WriterWidget } from './widget';
+import './turndown.js';
+import type { LuminoLayoutWindow } from '../bundle/lumino.d';
+
+const widgetSelf: LuminoLayoutWindow & {
+	TurndownService: typeof TurndownService;
+	WriterWidget: typeof WriterWidget;
+} = self as unknown as any;
+
 
 export class CellEditorWidget extends Widget
 {
@@ -16,6 +26,7 @@ export class CellEditorWidget extends Widget
 	private _controlsNode: HTMLElement;
 	private _instanceDispose?: () => void;
 	private static _modules: Map<string, ICellRendererModule> = new Map();
+	static turndownService: any;
 
 	constructor(model: ICellModel)
 	{
@@ -37,6 +48,15 @@ export class CellEditorWidget extends Widget
 
 		// Register built-in cell type handlers
 		CellEditorWidget.registerBuiltins();
+
+		if(!CellEditorWidget.turndownService)
+		{
+			CellEditorWidget.turndownService = new widgetSelf.TurndownService({
+				headingStyle: 'atx', // # Header format
+				codeBlockStyle: 'fenced', // ``` code fences
+				emDelimiter: '*'
+			});
+		}
 	}
 
 	public get model(): ICellModel
@@ -52,7 +72,10 @@ export class CellEditorWidget extends Widget
 	protected override onAfterAttach(msg: Message): void
 	{
 		super.onAfterAttach(msg);
-		this.renderCellContent();
+		setTimeout(() =>
+		{
+			this.renderCellContent();
+		}, 200);
 	}
 
 	protected override onBeforeDetach(msg: Message): void
@@ -106,7 +129,6 @@ export class CellEditorWidget extends Widget
 	{
 		const bar = document.createElement('div');
 		bar.className = 'lm-CellControls';
-		bar.style.cssText = 'display: flex; align-items: center; background: #f5f5f5; padding: 4px 8px; font-size: 12px; border-bottom: 1px solid #ddd; user-select: none;';
 
 		const typeBadge = document.createElement('span');
 		typeBadge.style.cssText = 'font-weight: bold; text-transform: uppercase; margin-right: auto; color: #666;';
@@ -141,6 +163,16 @@ export class CellEditorWidget extends Widget
 		return btn;
 	}
 
+	public getCellMarkdown(): string
+	{
+		if(widgetSelf.WriterWidget.activeEditor)
+		{
+			const html = widgetSelf.WriterWidget.activeEditor.getContent();
+			return CellEditorWidget.turndownService.turndown(html); // Output: "# Hello\n\nThis is **markdown**."
+		}
+		return '';
+	}
+
 	private static registerBuiltins(): void
 	{
 		if(CellEditorWidget._modules.size > 0) return;
@@ -152,12 +184,14 @@ export class CellEditorWidget extends Widget
 			{
 				marked.setOptions({ gfm: true, breaks: true });
 				const editorDiv = document.createElement('div');
+				editorDiv.setAttribute('contenteditable', 'true');
 				editorDiv.contentEditable = 'true';
 				editorDiv.style.cssText = 'outline: none; min-height: 60px; font-family: serif; font-size: 18px; line-height: 1.6;';
 				editorDiv.innerHTML = await marked.parse(model.content || '');
+				editorDiv.id = 'writer-cell-' + Date.now() + '-' + widgetSelf.nextTemp?.();
 
 				editorDiv.oninput = () => onChange(editorDiv.innerHTML);
-				container.innerHTML = editorDiv.innerHTML;
+				container.appendChild(editorDiv);
 				return {
 					dispose: () => { editorDiv.oninput = null; },
 					getValue: () => editorDiv.innerHTML
@@ -165,7 +199,7 @@ export class CellEditorWidget extends Widget
 			}
 		});
 
-		// 2. Fabric.js Interactive Canvas Module
+		// 2. Fabric.js Interactive Canvas Module (Updated for Fabric v6 + Lumino)
 		CellEditorWidget.registerModule({
 			type: 'canvas',
 			render: (container, model, onChange) =>
@@ -173,33 +207,62 @@ export class CellEditorWidget extends Widget
 				const canvasEl = document.createElement('canvas');
 				canvasEl.width = container.clientWidth || 800;
 				canvasEl.height = 400;
+				canvasEl.id = 'writer-cell-' + Date.now() + '-' + widgetSelf.nextTemp?.();
 				container.appendChild(canvasEl);
 
 				const fabricCanvas = new fabric.Canvas(canvasEl, {
 					isDrawingMode: false,
-					backgroundColor: '#ffffff'
+					backgroundColor: 'transparent'
 				});
 
+				// Hydrate JSON state asynchronously
 				if(model.content)
 				{
 					try
 					{
-						fabricCanvas.loadFromJSON(JSON.parse(model.content), () => fabricCanvas.renderAll());
+						const json = typeof model.content === 'string'
+							? JSON.parse(model.content)
+							: model.content;
+
+						// Fabric v6 returns a Promise for loadFromJSON
+						fabricCanvas.loadFromJSON(json).then(() =>
+						{
+							// Force Fabric to recalculate DOM offsets inside Lumino's layout
+							fabricCanvas.calcOffset();
+							// Explicitly trigger canvas paint
+							fabricCanvas.requestRenderAll();
+						}).catch(e =>
+						{
+							console.warn('Fabric loadFromJSON error:', e);
+						});
 					} catch(e)
 					{
 						console.warn('Fabric JSON parse error:', e);
 					}
 				}
+				else
+				{
+					// Initial blank render
+					fabricCanvas.requestRenderAll();
+				}
 
 				const syncState = () => onChange(JSON.stringify(fabricCanvas.toJSON()));
+
+				// Listen to canvas events for changes
 				fabricCanvas.on('object:modified', syncState);
+				fabricCanvas.on('object:added', syncState);
+				fabricCanvas.on('object:removed', syncState);
 
 				return {
-					dispose: () => { fabricCanvas.dispose(); },
+					dispose: () =>
+					{
+						fabricCanvas.dispose();
+					},
 					getValue: () => JSON.stringify(fabricCanvas.toJSON())
 				};
 			}
 		});
+
 
 		// 3. HTML / Rich Text Module
 		CellEditorWidget.registerModule({
@@ -207,11 +270,13 @@ export class CellEditorWidget extends Widget
 			render: (container, model, onChange) =>
 			{
 				const div = document.createElement('div');
+				div.id = 'writer-cell-' + Date.now() + '-' + widgetSelf.nextTemp?.();
+				div.setAttribute('contenteditable', 'true');
 				div.contentEditable = 'true';
 				div.style.cssText = 'outline: none; min-height: 60px;';
 				div.innerHTML = model.content;
 				div.oninput = () => onChange(div.innerHTML);
-				container.innerHTML = div.innerHTML;
+				container.appendChild(div);
 				return {
 					dispose: () => { div.oninput = null; },
 					getValue: () => div.innerHTML
