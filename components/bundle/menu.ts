@@ -64,7 +64,7 @@ export const MODULE_REGISTRY: Record<string, ComponentRoute> = {
 		subtext: 'Requires rich-text editor bindings, markdown parsers, and live document state signals.',
 		description: 'Provides a distraction-free environment for drafting, editing, and formatting structured content with real-time preview tools.'
 	},
-	'scroll': {
+	'layout': {
 		label: 'Layout Manager',
 		url: './components/template/template.bundle.js',
 		className: 'TemplateWidget',

@@ -24,6 +24,17 @@ import { WORK_TEMPLATES } from "./template-work";
 import { WRITING_TEMPLATES } from "./template-writing";
 import { ZEN_TEMPLATES } from "./template-zen";
 
+import { Widget } from '@lumino/widgets';
+import { Signal } from '@lumino/signaling';
+import { Message } from "@lumino/messaging";
+import type { LuminoLayoutWindow } from "../bundle/lumino.d";
+
+export interface ITemplateSelectPayload
+{
+	category: ITemplateCategory;
+	//item?: ITemplateItem;
+}
+
 export interface ITemplateCategory
 {
 	id: string;
@@ -39,6 +50,7 @@ export interface ITemplateItem
 	thumbnailUrl?: string; // Optional raster thumbnail fallback
 	htmlContent: string;
 	cssContent: string;
+	description?: string;
 }
 
 /**
@@ -210,3 +222,147 @@ export const CONTENT_LAYOUT_TEMPLATE_CATEGORIES: ITemplateCategory[] = [
 		templates: MARKETING_TEMPLATES
 	}
 ];
+
+const threadsSelf: LuminoLayoutWindow = self as unknown as any;
+
+export class TemplateCategoryWidget extends Widget
+{
+	/** Signal emitted when a template card is clicked. */
+	public readonly categorySelected = new Signal<this, ITemplateSelectPayload>(this);
+
+	private _categories: ITemplateCategory[];
+	private _activeCategoryId: string = 'all';
+	private _searchQuery: string = '';
+
+	private _sidebarEl!: HTMLElement;
+	private _galleryEl!: HTMLElement;
+	private _searchInputEl!: HTMLInputElement;
+
+	constructor(title?: string, categories: ITemplateCategory[] = [...DEFAULT_TEMPLATE_CATEGORIES, ...CONTENT_LAYOUT_TEMPLATE_CATEGORIES])
+	{
+		super();
+		this.id = 'lumino-template-category-widget';
+		this.title.label = title ?? 'Categories';
+		this.title.closable = true;
+		this.addClass('lm-TemplateCategoryWidget');
+
+		this._categories = categories;
+
+		this._buildSkeleton();
+		this._renderSidebar();
+	}
+
+	public processMessage(msg: Message): void
+	{
+		if(msg.type === 'close-request')
+		{
+			console.log('Intercepted close request, hiding instead: ' + this.title.label);
+
+			this.hide();
+			threadsSelf.mainDock?.layout?.removeWidget(this);
+			return; // BAIL OUT: Avoid calling super.processMessage() to prevent disposal
+		}
+
+		super.processMessage(msg);
+	}
+
+	/**
+	 * Set up the base DOM structure.
+	 */
+	private _buildSkeleton(): void
+	{
+		this.node.innerHTML = `
+			<aside class="tcw-sidebar">
+				<div class="tcw-search-box">
+					<input type="text" class="tcw-search-input" placeholder="Search templates..." />
+				</div>
+				<nav class="tcw-nav"></nav>
+			</aside>
+        `;
+
+		this._sidebarEl = this.node.querySelector('.tcw-nav') as HTMLElement;
+		this._galleryEl = this.node.querySelector('.tcw-gallery') as HTMLElement;
+		this._searchInputEl = this.node.querySelector('.tcw-search-input') as HTMLInputElement;
+
+		this._searchInputEl.addEventListener('input', this._onSearchInput);
+	}
+
+	private _onSearchInput = (e: Event): void =>
+	{
+		this._searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
+	};
+
+	/**
+	 * Render category sidebar items.
+	 */
+	private _renderSidebar(): void
+	{
+		this._sidebarEl.innerHTML = '';
+
+		const allBtn = document.createElement('button');
+		allBtn.className = `tcw-nav-item ${this._activeCategoryId === 'all' ? 'active' : ''}`;
+		allBtn.innerHTML = `<span class="tcw-nav-label">All Templates</span><span class="tcw-nav-count">${this._getTotalTemplateCount()}</span>`;
+		allBtn.onclick = () => this._setActiveCategory({
+			id: 'all',
+			title: 'All Templates',
+			templates: this._categories.map(c => c.templates).flat()
+		});
+		this._sidebarEl.appendChild(allBtn);
+
+		this._categories.forEach(cat =>
+		{
+			const btn = document.createElement('button');
+			btn.className = `tcw-nav-item ${this._activeCategoryId === cat.id ? 'active' : ''}`;
+			btn.innerHTML = `
+                <span class="tcw-nav-label">${this._escapeHtml(cat.title)}</span>
+                <span class="tcw-nav-count">${cat.templates.length}</span>
+            `;
+			btn.onclick = () => this._setActiveCategory(cat);
+			this._sidebarEl.appendChild(btn);
+		});
+	}
+
+	private _setActiveCategory(category: ITemplateCategory): void
+	{
+		this._activeCategoryId = category.id;
+		this.categorySelected.emit({
+			category: category
+		});
+		this._renderSidebar();
+
+		if(category.id !== 'all')
+		{
+			const targetSection = this._galleryEl.querySelector(`#tcw-cat-${category.id}`);
+			if(targetSection)
+			{
+				targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		} else
+		{
+			this._galleryEl.parentElement?.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	}
+
+	private _getTotalTemplateCount(): number
+	{
+		return this._categories.reduce((acc, cat) => acc + cat.templates.length, 0);
+	}
+
+	private _escapeHtml(str: string): string
+	{
+		return str.replace(/[&<>"']/g, m => ({
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#039;'
+		}[m] || m));
+	}
+
+	protected onAfterAttach(msg: Message): void
+	{
+		super.onAfterAttach(msg);
+		// Force Lumino box layout refresh on parent attachment
+		this.update();
+	}
+}

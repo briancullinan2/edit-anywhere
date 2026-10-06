@@ -3,6 +3,11 @@ import { Message } from '@lumino/messaging';
 import { Signal } from '@lumino/signaling';
 import { CellEditorWidget } from './widget-editor';
 import type { ICellModel } from './widget.d';
+import type { WriterWidget } from './widget';
+
+const scrollerSelf: {
+	WriterWidget: typeof WriterWidget;
+} = self as unknown as any;
 
 /**
  * Two-pass Virtualized Document Scroller:
@@ -46,8 +51,28 @@ export class VirtualWriterScrollerWidget extends Widget
 		this._scrollContainer.appendChild(this._poolContainer);
 		this.node.appendChild(this._scrollContainer);
 
-		this._scrollContainer.onscroll = () => this.updateVirtualViewport();
+		this._scrollContainer.onscroll = () =>
+		{
+			this.updateVirtualViewport();
+			this.micromanageTinyMCE();
+		};
+		this.node.addEventListener('keyup', () => this.recalculateCurrentView());
+		this.node.addEventListener('keypress', () => this.recalculateCurrentView());
 	}
+
+
+	private recalculateCurrentView()
+	{
+		const activeId = scrollerSelf.WriterWidget.activeEditor?.bodyElement?.id;
+		if(activeId)
+		{
+			const cell = Array.from(this._activeWidgetPool.values()).find(w => w._contentNode?.children[0].id === activeId);
+			cell?.measureAndEmitHeight();
+		}
+		this.recalculateTotalHeight();
+		this.updateVirtualViewport();
+	}
+
 
 	public setCells(cells: ICellModel[]): void
 	{
@@ -138,6 +163,7 @@ export class VirtualWriterScrollerWidget extends Widget
 		{
 			total += this._cellHeights.get(cell.id) || this._defaultCellHeight;
 		}
+		total += (this.node.parentElement?.clientHeight ?? this.node.clientHeight) * 0.6;
 		this._phantomSpacer.style.height = `${total}px`;
 	}
 
@@ -201,6 +227,10 @@ export class VirtualWriterScrollerWidget extends Widget
 		{
 			if(!visibleCellIds.has(id))
 			{
+				// if(scrollerSelf.WriterWidget.activeEditor?.bodyElement === widget._contentNode?.children[0])
+				// {
+				// 	scrollerSelf.WriterWidget.activeEditor.hide();
+				// }
 				Widget.detach(widget);
 				widget.dispose();
 				this._activeWidgetPool.delete(id);
@@ -208,10 +238,41 @@ export class VirtualWriterScrollerWidget extends Widget
 		}
 	}
 
+
+	private micromanageTinyMCE()
+	{
+		if(scrollerSelf.WriterWidget.activeEditor
+			&& typeof scrollerSelf.WriterWidget.activeEditor.bodyElement !== 'undefined')
+		{
+			// 1. Check if active cell scrolled out of view
+			const cellRect = scrollerSelf.WriterWidget.activeEditor.bodyElement.getBoundingClientRect();
+			const containerRect = this.node.getBoundingClientRect();
+
+			const isVisible = (
+				cellRect.bottom > containerRect.top &&
+				cellRect.top < containerRect.bottom
+			);
+
+			if(!isVisible)
+			{
+				// Hide toolbar or blur editor if scrolled out of bounds
+				scrollerSelf.WriterWidget.activeEditor.bodyElement.blur();
+				//scrollerSelf.WriterWidget.activeEditor.hide();
+			} else
+			{
+				// 2. Force TinyMCE to recalculate toolbar floating coordinates
+				scrollerSelf.WriterWidget.activeEditor.show();
+				scrollerSelf.WriterWidget.activeEditor.nodeChanged();
+			}
+		}
+	}
+
+
 	protected override onResize(msg: Widget.ResizeMessage): void
 	{
 		super.onResize(msg);
 		this.recalculateTotalHeight();
 		this.updateVirtualViewport();
+		this.micromanageTinyMCE();
 	}
 }

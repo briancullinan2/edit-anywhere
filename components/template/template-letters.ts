@@ -200,7 +200,7 @@ export const LETTER_TEMPLATES: ITemplateItem[] = [
       </div>
     `,
 		cssContent: `
-      .coral-wrapper { display: flex; height: 100%; margin: -10px; }
+      .coral-wrapper { display: flex; height: calc(100% + 20px); margin: -10px; }
       .coral-bar { width: 15%; background: #ff7043; padding: 6px 2px; display: flex; flex-direction: column; align-items: center; }
       .c-dot { width: 6px; height: 6px; background: #fff; border-radius: 50%; margin-bottom: 8px; }
       .vertical-txt { color: #fff; font-size: 3px; font-weight: bold; letter-spacing: 1px; writing-mode: vertical-rl; }

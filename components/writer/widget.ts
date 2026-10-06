@@ -96,7 +96,7 @@ export class WriterWidget extends Widget
 								"crossOrigin": "anonymous"
 							}
 						],
-						"background": "#f8f9fa"
+						//"background": "#f8f9fa"
 					})
 				},
 				{ id: 'c3', type: 'html', content: '<div><h2 style="color: #ff5722;">Interactive Web Presence</h2></div>' }
@@ -108,6 +108,20 @@ export class WriterWidget extends Widget
 
 		this.initPdfWorker();
 		this.bindSignals();
+	}
+
+
+	protected override onBeforeDetach(msg: Message): void
+	{
+		WriterWidget.activeEditor?.hide();
+		super.onBeforeDetach(msg);
+	}
+
+
+	protected override onBeforeHide(msg: Message): void
+	{
+		WriterWidget.activeEditor?.hide();
+		super.onBeforeHide(msg);
 	}
 
 	protected override onAfterAttach(msg: Message): void
@@ -173,6 +187,10 @@ export class WriterWidget extends Widget
 				editable_class: '[contenteditable]',
 				base_url: '/components/writer',
 				license_key: 'gpl',
+				//fixed_toolbar_container: '#app-top-header-row',
+				fixed_toolbar_container: 'body',
+				toolbar_persist: true,
+				//ui_mode: 'split',
 
 				// Enable top menubar with full options
 				menubar: 'file edit view insert format tools table help',
@@ -202,6 +220,7 @@ export class WriterWidget extends Widget
 				automatic_uploads: true,
 				file_picker_types: 'image media',
 
+
 				// Full layout flexibility
 				extended_valid_elements: '*[*]', // Allow all HTML attributes and elements
 				style_formats_autohide: true,
@@ -222,7 +241,7 @@ export class WriterWidget extends Widget
 
 							if(activeBody.innerHTML !== updatedHtml)
 							{
-								activeBody.innerHTML = updatedHtml;
+								//activeBody.innerHTML = updatedHtml;
 							}
 						}
 					};
@@ -236,6 +255,18 @@ export class WriterWidget extends Widget
 						// Keeps TinyMCE's internal bookmark manager aligned with current caret position
 						//editor.nodeChanged();
 					});
+
+					const syncCaretFollower = () =>
+					{
+						WriterWidget.updatePosition(editor);
+					};
+
+					// Listen to typing, line breaks, cursor clicks, and selection shifts
+					editor.on('keyup click ExecCommand SelectionChange NodeChange input', syncCaretFollower);
+
+					// Track when virtual scroller scrolls
+					const scrollerNode = document.querySelector('#virtual-scroller');
+					scrollerNode?.addEventListener('scroll', syncCaretFollower, { passive: true });
 				}
 			};
 			if(id instanceof HTMLElement)
@@ -246,11 +277,105 @@ export class WriterWidget extends Widget
 		}
 	}
 
+	private static rafId: number | null = null;
+	private static updatePosition(editor: any)
+	{
+		if(this.rafId) cancelAnimationFrame(this.rafId);
+
+		this.rafId = requestAnimationFrame(() =>
+		{
+			// 1. Get browser selection and active caret range
+			const sel = editor.selection?.getSel();
+			if(!sel || sel.rangeCount === 0) return;
+
+			const range = sel.getRangeAt(0);
+			let rect = range.getBoundingClientRect();
+
+			// Fallback: If cursor is at start of empty line, get element rect
+			if(rect.top === 0 && rect.bottom === 0)
+			{
+				const startNode = range.startContainer as HTMLElement;
+				const targetElem = startNode.nodeType === Node.ELEMENT_NODE
+					? startNode
+					: startNode.parentElement;
+				if(targetElem)
+				{
+					rect = targetElem.getBoundingClientRect();
+				}
+			}
+
+			if(rect.top === 0 && rect.bottom === 0) return;
+
+			// 2. Locate TinyMCE's floating toolbar container
+			// TinyMCE inline toolbar container rendered in body or root
+			const container = editor.getContainer() || document.querySelector('.tox-tinymce-inline');
+			if(!container) return;
+
+			const toolbarEl = container as HTMLElement;
+			toolbarEl.style.position = 'fixed';
+			toolbarEl.style.transition = 'top 0.12s ease-out, left 0.12s ease-out'; // Smooth "flowy" tracking
+
+			// 3. Offset calculations:
+			// Place toolbar ~42px ABOVE the caret line (or below if near top of viewport)
+			const toolbarHeight = toolbarEl.offsetHeight || 40;
+			let targetTop = rect.top - toolbarHeight - 8;
+
+			// If caret is too close to top of viewport, shift toolbar below caret line instead
+			if(targetTop < 10)
+			{
+				targetTop = rect.bottom + 8;
+			}
+
+			// Align horizontally with the caret position (with safety bounds)
+			let targetLeft = rect.left;
+			const maxLeft = window.innerWidth - toolbarEl.offsetWidth - 16;
+			targetLeft = Math.max(16, Math.min(targetLeft, maxLeft));
+
+			// 4. Apply updated coordinates
+			toolbarEl.style.top = `${targetTop}px`;
+			toolbarEl.style.left = `${targetLeft}px`;
+			toolbarEl.style.zIndex = '100000';
+		});
+	}
+
+
+	// private static trackCaret(editor: any, scrollerViewport: HTMLElement)
+	// {
+	// 	if(this.rafId) cancelAnimationFrame(this.rafId);
+
+	// 	this.rafId = requestAnimationFrame(() =>
+	// 	{
+	// 		const sel = editor.selection.getSel();
+	// 		if(!sel || sel.rangeCount === 0) return;
+
+	// 		const range = sel.getRangeAt(0);
+	// 		const caretRect = range.getBoundingClientRect();
+	// 		const viewportRect = scrollerViewport.getBoundingClientRect();
+
+	// 		// Top boundary offset (leave room below fixed toolbar - e.g. 60px)
+	// 		const topBuffer = viewportRect.top + 60;
+	// 		// Bottom boundary offset
+	// 		const bottomBuffer = viewportRect.bottom - 40;
+
+	// 		// 1. If cursor goes above top buffer (behind toolbar), scroll viewport up
+	// 		if(caretRect.top < topBuffer)
+	// 		{
+	// 			scrollerViewport.scrollTop -= (topBuffer - caretRect.top + 20);
+	// 		}
+	// 		// 2. If cursor goes below bottom buffer, scroll viewport down
+	// 		else if(caretRect.bottom > bottomBuffer)
+	// 		{
+	// 			scrollerViewport.scrollTop += (caretRect.bottom - bottomBuffer + 20);
+	// 		}
+	// 	});
+	// }
+
+
 	private attachEvents()
 	{
 		this.node.addEventListener('click', async (event) =>
 		{
-			const cellContentDiv = (event.target as HTMLElement)?.closest?.('*[contenteditable="true"], .mce-content-body') as HTMLElement;
+			const cellContentDiv = (event.target as HTMLElement)?.closest?.('*[contenteditable], .mce-content-body') as HTMLElement;
 
 			if(!cellContentDiv)
 			{
@@ -288,16 +413,19 @@ export class WriterWidget extends Widget
 				editor.focus();
 
 				// 7. Tell TinyMCE to update formats/toolbars for the new node
+				editor.dispatch('focusin', event);
+				editor.show();
 				editor.nodeChanged();
 			}
-			else
+			else if(editor.container.style.display === 'none')
 			{
 				// If already on the same cell, just restore cursor/focus
 				editor.focus();
+				editor.dispatch('focusin', event);
+				editor.show();
+				editor.nodeChanged();
 			}
 
-			editor.dispatch('focusin', event);
-			editor.show();
 		});
 	}
 

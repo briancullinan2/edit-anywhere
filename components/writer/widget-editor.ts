@@ -22,7 +22,7 @@ export class CellEditorWidget extends Widget
 	public readonly actionRequested = new Signal<this, { action: string; cellId: string; }>(this);
 
 	private _model: ICellModel;
-	private _contentNode: HTMLElement;
+	public _contentNode: HTMLElement;
 	private _controlsNode: HTMLElement;
 	private _instanceDispose?: () => void;
 	private static _modules: Map<string, ICellRendererModule> = new Map();
@@ -31,6 +31,7 @@ export class CellEditorWidget extends Widget
 	constructor(model: ICellModel)
 	{
 		super();
+		this.id = model.id;
 		this._model = model;
 		this.addClass('lm-CellEditorWidget');
 		this.node.dataset.cellId = model.id;
@@ -115,7 +116,7 @@ export class CellEditorWidget extends Widget
 		requestAnimationFrame(() => this.measureAndEmitHeight());
 	}
 
-	private measureAndEmitHeight(): void
+	public measureAndEmitHeight(): void
 	{
 		const rect = this.node.getBoundingClientRect();
 		if(rect.height > 0 && rect.height !== this._model.height)
@@ -212,9 +213,9 @@ export class CellEditorWidget extends Widget
 
 				const fabricCanvas = new fabric.Canvas(canvasEl, {
 					isDrawingMode: false,
-					backgroundColor: 'transparent'
+					backgroundColor: undefined
 				});
-
+				//fabricCanvas.set('backgroundColor', 'transparent');
 				// Hydrate JSON state asynchronously
 				if(model.content)
 				{

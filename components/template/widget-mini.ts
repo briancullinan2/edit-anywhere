@@ -11,12 +11,13 @@ export class TemplateMiniatureRenderer
 		container.id = 'template-mini-' + Date.now() + '-' + widgetSelf.nextTemp?.();
 		container.className = 'template-mini-viewport';
 
+
 		const styleEl = document.createElement('style');
 		styleEl.textContent = `
 	@scope (#${container.id}) {
       * { box-sizing: border-box; margin: 0; padding: 0; }
       div, section, header, article, aside, footer { position: relative; }
-      ${template.cssContent}
+      ${TemplateMiniatureRenderer.convertNamedFontSizesToEm(template.cssContent)}
 	}
     `;
 		container.appendChild(styleEl);
@@ -31,6 +32,37 @@ export class TemplateMiniatureRenderer
 		container.appendChild(contentFrame);
 		return container;
 	}
+
+
+	public static convertNamedFontSizesToEm(cssString: string)
+	{
+		const fontSizeMap: Record<string, string> = {
+			'xx-small': '0.625em',
+			'x-small': '0.75em',
+			'small': '0.875em',
+			'medium': '1em',
+			'large': '1.2em',
+			'x-large': '1.5em',
+			'xx-large': '2em',
+			'xxx-large': '3em',
+			'smaller': '0.833em',
+			'larger': '1.2em'
+		};
+
+		// Regex matches 'font-size:' or 'font:' followed by a named keyword
+		const pattern = /(font(?:-size)?\s*:\s*)([a-z-]+)(?=[;\s!}])/gi;
+
+		return cssString.replace(pattern, (match, property, keyword) =>
+		{
+			const lowerKeyword = keyword.toLowerCase();
+			if(fontSizeMap.hasOwnProperty(lowerKeyword))
+			{
+				return `${property}${fontSizeMap[lowerKeyword]}`;
+			}
+			return match;
+		});
+	}
+
 
 	private static decorateNodesWithTags(parent: HTMLElement): void
 	{

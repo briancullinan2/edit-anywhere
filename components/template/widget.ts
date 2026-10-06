@@ -7,11 +7,17 @@ import
 	ITemplateItem,
 	DEFAULT_TEMPLATE_CATEGORIES,
 	prepareTemplateForEditor,
-	CONTENT_LAYOUT_TEMPLATE_CATEGORIES
+	CONTENT_LAYOUT_TEMPLATE_CATEGORIES,
+	TemplateCategoryWidget,
+	ITemplateSelectPayload
 } from './template';
 import { TemplateMiniatureRenderer } from './widget-mini';
+import type { LuminoLayoutWindow } from '../bundle/lumino.d';
+import type { GlobalToolbarsWindow } from '../bundle/menu.d';
 
 export * from './template';
+
+const widgetSelf: LuminoLayoutWindow & GlobalToolbarsWindow = self as unknown as any;
 
 export class LayoutWidget extends Widget
 {
@@ -22,31 +28,109 @@ export class LayoutWidget extends Widget
 	public readonly templateSelected = new Signal<this, { template: ITemplateItem; editorContent: string; }>(this);
 
 	private categories: ITemplateCategory[];
+	private categoriesSidebar?: TemplateCategoryWidget;
+	private filterCategory?: ITemplateCategory;
 
 	constructor(title?: string, categories: ITemplateCategory[] = [...DEFAULT_TEMPLATE_CATEGORIES, ...CONTENT_LAYOUT_TEMPLATE_CATEGORIES])
 	{
 		super();
 		this.title.label = title ?? 'Templates';
+		this.title.iconClass = 'bx bx-scroll';
 		this.title.closable = true;
 		this.categories = categories;
 		this.id = 'lumino-template-gallery';
 		this.addClass('docs-homescreen-itemholder-content');
 		this.addClass('docs-homescreen-templates-gallery');
-		this.node.style.cssText = 'overflow-y: auto; height: 100%; width: 100%; background: #f8f9fa; padding: 16px; box-sizing: border-box;';
+		this.categoriesSidebar = new TemplateCategoryWidget(undefined, categories);
+		this.categoriesSidebar?.categorySelected.connect(this.filterTemplates.bind(this));
+	}
+
+
+	private filterTemplates(send: Widget, args: ITemplateSelectPayload)
+	{
+		debugger;
+		this.filterCategory = args.category;
+		this.renderGallery();
 	}
 
 	protected override onAfterAttach(msg: Message): void
 	{
 		super.onAfterAttach(msg);
 		this.renderGallery();
+		this.openCategories();
 	}
+
+	protected override onAfterShow(msg: Message): void
+	{
+		super.onAfterShow(msg);
+		this.openCategories();
+	}
+
+	private openCategories()
+	{
+		const that = this;
+		setTimeout(() =>
+		{
+			if(widgetSelf.mainDock && widgetSelf.LayoutAdjuster && that.categoriesSidebar)
+			{
+				if(!this.categoriesSidebar?.isAttached)
+				{
+					widgetSelf.LayoutAdjuster?.addOptimalWidgetLayout(widgetSelf.mainDock, that.categoriesSidebar, {
+						type: 'outline',
+						projectId: that.categoriesSidebar?.constructor.name
+					});
+				}
+			}
+		}, 300);
+	}
+
+	public processMessage(msg: Message): void
+	{
+		if(msg.type === 'close-request')
+		{
+			this.categoriesSidebar?.close();
+		}
+
+		super.processMessage(msg);
+	}
+
+	protected override onBeforeHide(msg: Message): void
+	{
+		this.categoriesSidebar?.close();
+		super.onBeforeHide(msg);
+	}
+
+
+	protected override onBeforeDetach(msg: Message): void
+	{
+		this.categoriesSidebar?.close();
+		super.onBeforeDetach(msg);
+	}
+
 
 	private renderGallery(): void
 	{
+		if(!this.filterCategory || this.filterCategory.id === 'all')
+		{
+
+			this.node.innerHTML = `
+				<div class="template-placeholder">
+				<i class="bx bx-select-multiple"></i>
+				<p>Select a category from the list to view templates.</p>
+				</div>
+			`;
+
+			return;
+		}
 		this.node.innerHTML = '';
 
 		for(const category of this.categories)
 		{
+			if(category !== this.filterCategory)
+			{
+				continue;
+			}
+
 			const gridContainer = document.createElement('div');
 			gridContainer.className = 'docs-homescreen-grid-container docs-homescreen-grid-container-horizontal';
 
@@ -54,7 +138,7 @@ export class LayoutWidget extends Widget
 			const header = document.createElement('div');
 			header.className = 'docs-homescreen-grid-header';
 
-			const title = document.createElement('div');
+			const title = document.createElement('h3');
 			title.className = 'docs-homescreen-grid-header-title';
 			title.textContent = category.title;
 			header.appendChild(title);
@@ -103,6 +187,10 @@ export class LayoutWidget extends Widget
 		{
 			// Build live mini DOM preview with tag badges
 			const miniView = TemplateMiniatureRenderer.renderMiniature(tpl);
+			if(tpl.description)
+			{
+				preview.title = tpl.description;
+			}
 			preview.appendChild(miniView);
 		}
 
