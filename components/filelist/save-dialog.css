@@ -27,8 +27,8 @@
 	background: rgb(from var(--ace-gutter-bg) r g b / 80%);
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
-	border: 1px solid var(--ace-selection-bg);
-	border-radius: 12px;
+	border: 2px solid var(--ace-selection-bg);
+	/* border-radius: 12px; */
 	box-shadow: 0 10px 30px rgb(from var(--ace-bg) r g b / 80%);
 	display: flex;
 	flex-direction: column;
@@ -54,7 +54,7 @@
 .sfd-btn-icon {
 	background: transparent;
 	border: none;
-	border-radius: 6px;
+	/* border-radius: 6px; */
 	padding: 6px;
 	cursor: pointer;
 	color: var(--ace-comment);
@@ -79,8 +79,8 @@
 	display: flex;
 	align-items: center;
 	background: var(--ace-bg);
-	border: 1px solid var(--ace-selection-bg);
-	border-radius: 6px;
+	border: 2px solid var(--ace-selection-bg);
+	/* border-radius: 6px; */
 	padding: 4px 8px;
 	overflow-x: auto;
 	font-size: 13px;
@@ -91,7 +91,7 @@
 	align-items: center;
 	cursor: pointer;
 	padding: 2px 4px;
-	border-radius: 4px;
+	/* border-radius: 4px; */
 	color: var(--ace-foreground);
 }
 
@@ -108,8 +108,8 @@
 	display: flex;
 	align-items: center;
 	background: var(--ace-bg);
-	border: 1px solid var(--ace-selection-bg);
-	border-radius: 6px;
+	border: 2px solid var(--ace-selection-bg);
+	/* border-radius: 6px; */
 	padding: 4px 8px;
 	width: 180px;
 }
@@ -163,7 +163,7 @@
 	align-items: center;
 	gap: 8px;
 	padding: 6px 8px;
-	border-radius: 6px;
+	/* border-radius: 6px; */
 	font-size: 13px;
 	color: var(--ace-foreground);
 	cursor: pointer;
@@ -280,8 +280,8 @@
 .sfd-select {
 	flex: 1;
 	padding: 6px 10px;
-	border: 1px solid var(--ace-selection-bg);
-	border-radius: 6px;
+	border: 2px solid var(--ace-selection-bg);
+	/* border-radius: 6px; */
 	background: var(--ace-bg);
 	color: var(--ace-foreground);
 	font-size: 13px;
@@ -303,11 +303,11 @@
 
 .sfd-btn {
 	padding: 6px 16px;
-	border-radius: 6px;
+	/* border-radius: 6px; */
 	font-size: 13px;
 	font-weight: 500;
 	cursor: pointer;
-	border: 1px solid transparent;
+	border: 2px solid transparent;
 	transition: background 0.15s ease;
 }
 

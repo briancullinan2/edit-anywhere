@@ -21,7 +21,7 @@ import type { SettingsToolbar } from "./menu-settings";
 import type { GithubService } from "./github-worker";
 import type { EditToolbar } from "./menu-edit";
 import type { ViewToolbar } from "./menu-view";
-import { LayoutToolbar } from "./menu-layout";
+import type { LayoutToolbar } from "./menu-layout";
 
 // ============================================================================
 // 1. TOOLBARS & COMPONENT INSTANCES / CONSTRUCTORS

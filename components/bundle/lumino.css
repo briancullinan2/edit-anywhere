@@ -175,6 +175,8 @@ html {
 	min-width: 0;
 }
 
+.lm-TabBar-tab>.lm-TabBar-tabIcon.bi,
+.lm-TabBar-tab>.lm-TabBar-tabIcon.fa,
 .lm-TabBar-tab>.lm-TabBar-tabIcon.bx {
 	margin-right: 8px;
 }
@@ -188,6 +190,7 @@ html {
 }
 
 .lm-Widget[data-type="outline"] {
+	min-width: 200px;
 	width: 200px;
 	height: 100%;
 }

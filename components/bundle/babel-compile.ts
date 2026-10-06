@@ -10,7 +10,9 @@ import type { LuminoLayoutWindow } from './lumino.d';
 const parseBabel = packages.parser.parse;
 const traverse = (packages as any).traverse.default;
 
-const compileSelf: LuminoLayoutWindow = self as unknown as any;
+const compileSelf: LuminoLayoutWindow & {
+	[key: string]: any;
+} = self as unknown as any;
 
 
 
@@ -63,6 +65,15 @@ export function collectDependencies(rawCode: string, baseRoute: string, dependen
 			} else if(moduleName === 'd3')
 			{
 				newDependency = '/components/status/d3.min.js';
+			} else if(moduleName === 'fabric')
+			{
+				newDependency = '/components/writer/fabric.min.js';
+			} else if(moduleName === 'marked')
+			{
+				newDependency = '/components/writer/marked.umd.js';
+			} else if(moduleName === '@mlc-ai/web-llm')
+			{
+				newDependency = '/components/chat/mlc.mjs';
 			} else if(moduleName === 'd3-cloud')
 			{
 				newDependency = '/components/blog/d3.layout.cloud.js';
@@ -115,6 +126,9 @@ export function collectDependencies(rawCode: string, baseRoute: string, dependen
 				} else if((moduleName === 'xterm' || moduleName === '@xterm/xterm') && baseRoute)
 				{
 					newDependency = '/components/terminal/xterm.js';
+				} else if(moduleName === '@mlc-ai/web-llm')
+				{
+					newDependency = '/components/chat/mlc.mjs';
 				} else if((moduleName === 'litegraph.js'))
 				{
 					newDependency = '/components/graph/litegraph.min.js';
@@ -438,9 +452,18 @@ export function transpileTypescriptWidget(rawCode: string, baseRoute: string): a
 								} else if(moduleName === '@lumino/signaling')
 								{
 									path.replaceWithSourceString('window.Lumino.signaling');
+								} else if(moduleName === '@mlc-ai/web-llm')
+								{
+									path.replaceWithSourceString('/components/chat/mlc.mjs');
 								} else if(moduleName === '@lumino/commands')
 								{
 									path.replaceWithSourceString('window.Lumino.commands');
+								} else if(moduleName === 'marked')
+								{
+									path.replaceWithSourceString('window');
+								} else if(moduleName === 'fabric')
+								{
+									path.replaceWithSourceString('window.fabric');
 								} else if(moduleName === './tree.js')
 								{
 									path.replaceWithSourceString('window.Tree');
@@ -450,6 +473,9 @@ export function transpileTypescriptWidget(rawCode: string, baseRoute: string): a
 								} else if(moduleName === './bundle.js')
 								{
 									path.replaceWithSourceString('window');
+								} else if(moduleName === '@mlc-ai/web-llm')
+								{
+									path.node.source = t.stringLiteral('/components/chat/mlc.mjs');
 								} else if(moduleName === 'xterm' || moduleName === '@xterm/xterm')
 								{
 									path.replaceWithSourceString('Terminal');
@@ -494,6 +520,15 @@ export function transpileTypescriptWidget(rawCode: string, baseRoute: string): a
 									t.identifier('window'),
 									t.identifier('ace')
 								);
+							} else if(moduleName === 'marked')
+							{
+								globalExpression = t.identifier('window');
+							} else if(moduleName === 'fabric')
+							{
+								globalExpression = t.memberExpression(
+									t.identifier('window'),
+									t.identifier('fabric')
+								);
 							} else if(moduleName === './tree.js')
 							{
 								globalExpression = t.memberExpression(
@@ -521,6 +556,9 @@ export function transpileTypescriptWidget(rawCode: string, baseRoute: string): a
 							} else if(moduleName === 'litegraph.js')
 							{
 								globalExpression = t.identifier('window');
+							} else if(moduleName === '@mlc-ai/web-llm')
+							{
+								babelPath.node.source = t.stringLiteral('/components/chat/mlc.mjs');
 							} else if(moduleName.startsWith('./') || moduleName.startsWith('../'))
 							{
 								const ext = baseRoute.split('.').pop();
@@ -622,7 +660,7 @@ export async function loadAndInstantiate(route: ComponentRoute): Promise<any>
 		const modulePromise = import(/* webpackIgnore: true */ route.url + '?t=' + Date.now() + '&local-csp=true');
 		registry.set(route.url, modulePromise);
 		const module = await modulePromise;
-		return new module[route.className](route.label);
+		return new (module?.default?.[route.className] ?? module?.[route.className] ?? compileSelf[route.className])(route.label);
 	}
 
 	const targetUrl = route.url.replace(/\.ts$/, '.js').replace(/^\.\//, '/base/');
@@ -631,7 +669,7 @@ export async function loadAndInstantiate(route: ComponentRoute): Promise<any>
 	{
 		console.log('Already transpiled: ' + targetUrl);
 		const module2 = await existingPromise;
-		return new module2[route.className](route.label);
+		return new (module2?.default?.[route.className] ?? module2?.[route.className] ?? compileSelf[route.className])(route.label);
 	}
 
 	await fetchTranspileAndStore(route.url);

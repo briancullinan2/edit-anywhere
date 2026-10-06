@@ -21,7 +21,7 @@
 
 .lm-Menu {
 	background: var(--ace-bg);
-	border: 1px solid var(--ace-gutter-bg);
+	border: 2px solid var(--ace-gutter-bg);
 	box-shadow: 0 4px 8px rgb(from var(--ace-bg) r g b / 80%);
 	color: var(--ace-foreground);
 }

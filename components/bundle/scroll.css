@@ -15,8 +15,8 @@
 .xterm-scrollable-element::-webkit-scrollbar,
 .ace_editor ::-webkit-scrollbar,
 .terminal-filter-widget .xterm-scrollable-element>.scrollbar {
-	width: 10px !important;
-	height: 10px !important;
+	width: 16px !important;
+	height: 16px !important;
 	background-color: transparent !important;
 }
 
@@ -56,7 +56,7 @@
 
 	/*background: rgb(from var(--ace-selection-bg) r g b / 50%) !important;*/
 	background: rgb(from var(--ace-selection-bg) r g b / 50%) !important;
-	border-radius: 4px !important;
+	border-radius: 0 !important;
 	opacity: 1 !important;
 	visibility: visible !important;
 	box-shadow: 1px 2px 3px rgb(from var(--ace-gutter-bg) r g b / 100%) !important;

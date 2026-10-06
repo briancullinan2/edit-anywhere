@@ -479,7 +479,7 @@
 
 
 .ui_swatches .swatch {
-	border: 1px solid var(--ace-bg);
+	border: 2px solid var(--ace-bg);
 	margin: 0;
 }
 

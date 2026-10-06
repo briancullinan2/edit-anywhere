@@ -14,31 +14,31 @@
 #toolbar select,
 #toolbar select option,
 #toolbar button {
-    border: 2px solid #666;
-    background: white;
-    padding: 3px 5px;
-    margin: 0;
-    width: stretch;
-    line-height: var(--global-height);
-    box-sizing: border-box;
-    height: 30px;
-    font-size: 14px;
-    /* Prevents select from using system fonts */
-    vertical-align: middle;
-    background: var(--ace-bg);
-    border: 2px solid rgb(from var(--ace-selection-bg) r g b / 50%);
-    color: var(--ace-foreground);
-    font-family: inherit;
-    line-height: var(--global-height);
+	border: 2px solid #666;
+	background: white;
+	padding: 3px 5px;
+	margin: 0;
+	width: stretch;
+	line-height: var(--global-height);
+	box-sizing: border-box;
+	height: 30px;
+	font-size: 14px;
+	/* Prevents select from using system fonts */
+	vertical-align: middle;
+	background: var(--ace-bg);
+	border: 2px solid rgb(from var(--ace-selection-bg) r g b / 50%);
+	color: var(--ace-foreground);
+	font-family: inherit;
+	line-height: var(--global-height);
 }
 
 #popups input[type="radio"],
 #popups input[type="checkbox"] {
-    width: min-content;
+	width: min-content;
 }
 
 #popup-group-type {
-    white-space: nowrap;
+	white-space: nowrap;
 }
 
 
@@ -50,16 +50,16 @@
 #toolbar select,
 #toolbar select option,
 #toolbar button {
-    overflow: hidden;
-    min-width: 0;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: stretch;
-    width: stretch;
+	overflow: hidden;
+	min-width: 0;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: stretch;
+	width: stretch;
 }
 
 #toolbar select {
-    width: 140px;
+	width: 140px;
 }
 
 #list-wrapper ul.toolbar input:placeholder-shown,
@@ -68,9 +68,9 @@ select:has(option[value=""]:checked),
 #search-terminal input:placeholder-shown,
 #token-modal input:placeholder-shown,
 #toolbar input:placeholder-shown {
-    border-color: var(--ace-bg);
-    background-color: var(--ace-bg);
-    color: var(--ace-foreground);
+	border-color: var(--ace-bg);
+	background-color: var(--ace-bg);
+	color: var(--ace-foreground);
 }
 
 #list-wrapper ul.toolbar input:hover,
@@ -85,9 +85,9 @@ select:has(option[value=""]:checked),
 #toolbar select:hover,
 #toolbar select option:hover,
 #toolbar button:hover {
-    background: rgb(from var(--ace-selection-bg) r g b / 50%);
-    border: 2px solid rgb(from var(--ace-blue) r g b / 50%);
-    cursor: pointer;
+	background: rgb(from var(--ace-selection-bg) r g b / 50%);
+	border: 2px solid rgb(from var(--ace-blue) r g b / 50%);
+	cursor: pointer;
 }
 
 
@@ -96,9 +96,9 @@ select:has(option[value=""]:checked),
 #token-modal .actions button:hover,
 #toolbar select option:hover,
 #toolbar button:hover {
-    background: rgb(from var(--ace-selection-bg) r g b / 50%);
-    border-color: var(--ace-blue);
-    cursor: pointer;
+	background: rgb(from var(--ace-selection-bg) r g b / 50%);
+	border-color: var(--ace-blue);
+	cursor: pointer;
 }
 
 #popups .popup input:focus,
@@ -110,8 +110,8 @@ select:has(option[value=""]:checked),
 #list-wrapper ul.toolbar select:focus,
 #toolbar input:focus,
 #toolbar select:focus {
-    border-color: var(--ace-blue);
-    background: var(--ace-bg);
+	border-color: var(--ace-blue);
+	background: var(--ace-bg);
 }
 
 #popups .popup input:not(:placeholder-shown),
@@ -121,8 +121,8 @@ select:not(:has(option[value=""]:checked)),
 #list-wrapper ul.toolbar input:not(:placeholder-shown),
 #toolbar input:not(:placeholder-shown),
 #search-terminal:not(:placeholder-shown) {
-    border-color: var(--ace-blue);
-    background: var(--ace-bg);
+	border-color: var(--ace-blue);
+	background: var(--ace-bg);
 }
 
 
@@ -130,11 +130,11 @@ select:not(:has(option[value=""]:checked)),
 #search::-moz-placeholder,
 #toolbar input::-moz-placeholder,
 #toolbar input::-ms-input-placeholder {
-    background-color: var(--ace-bg);
-    color: var(--ace-foreground);
-    opacity: 0.75;
-    font-style: italic;
-    color: rgb(from var(--ace-foreground) r g b / 50%);
+	background-color: var(--ace-bg);
+	color: var(--ace-foreground);
+	opacity: 0.75;
+	font-style: italic;
+	color: rgb(from var(--ace-foreground) r g b / 50%);
 }
 
 
@@ -145,15 +145,15 @@ select:not(:has(option[value=""]:checked)),
 #list-wrapper ul.toolbar input::placeholder,
 #search::placeholder,
 #toolbar input::placeholder {
-    background-color: var(--ace-bg);
-    color: var(--ace-foreground);
-    opacity: 0.75;
-    font-style: italic;
-    color: rgb(from var(--ace-foreground) r g b / 50%);
+	background-color: var(--ace-bg);
+	color: var(--ace-foreground);
+	opacity: 0.75;
+	font-style: italic;
+	color: rgb(from var(--ace-foreground) r g b / 50%);
 }
 
 #gh-token-input.has-token::placeholder {
-    color: rgb(from var(--ace-green) r g b / 50%);
+	color: rgb(from var(--ace-green) r g b / 50%);
 }
 
 
@@ -163,69 +163,69 @@ select:not(:has(option[value=""]:checked)),
 #list-wrapper ul.toolbar button:active,
 #toolbar select option:hover,
 #toolbar button:active {
-    background: var(--ace-bg);
+	background: var(--ace-bg);
 }
 
 
 #toolbar option {
-    background: var(--ace-gutter-bg);
-    color: var(--ace-foreground);
+	background: var(--ace-gutter-bg);
+	color: var(--ace-foreground);
 }
 
 #token-modal button {
-    height: auto;
+	height: auto;
 }
 
 [placeholder],
 [alt],
 [data-tooltip] {
-    position: relative;
+	position: relative;
 }
 
 #toolbar [placeholder]:not([type="checkbox"])::after,
 #toolbar [alt]::after,
 #toolbar [data-tooltip]::after {
-    top: 100%;
-    bottom: auto;
+	top: 100%;
+	bottom: auto;
 }
 
 [placeholder]:has(#search:active)::after,
 [placeholder]:has(#search:focus)::after,
 [placeholder]:has(#search-terminal:active)::after,
 [placeholder]:has(#search-terminal:focus)::after {
-    opacity: 1;
+	opacity: 1;
 }
 
 #global-tooltip:hover,
 #main:has(.ace_marker-layer .ace_active-line:hover)~#global-tooltip,
 #main:has(.ace_gutter .ace_gutter-active-line:hover)~#global-tooltip,
 #main:has([placeholder][popovertarget]:hover)~#global-tooltip {
-    opacity: 1;
-    display: inline-block;
-    white-space: wrap;
+	opacity: 1;
+	display: inline-block;
+	white-space: wrap;
 }
 
 #main:has([placeholder][popovertarget]:hover)~#global-tooltip::after {}
 
 #global-tooltip:popover-open::after {
-    content: var(--tip, "Default Tooltip");
-    display: block;
+	content: var(--tip, "Default Tooltip");
+	display: block;
 }
 
 #global-tooltip::backdrop {
-    background: transparent;
+	background: transparent;
 }
 
 [placeholder][popovertarget]:not([type="checkbox"]):hover {
-    --tip: attr(placeholder);
+	--tip: attr(placeholder);
 }
 
 [alt][popovertarget]:hover {
-    --tip: attr(alt);
+	--tip: attr(alt);
 }
 
 [data-tooltip][popovertarget]:hover {
-    --tip: attr(data-tooltip);
+	--tip: attr(data-tooltip);
 }
 
 
@@ -239,51 +239,51 @@ select:not(:has(option[value=""]:checked)),
 [placeholder]:not([popovertarget]):not([type="checkbox"])::after,
 [alt]:not([popovertarget])::after,
 [data-tooltip]:not([popovertarget])::after {
-    position: absolute;
-    cursor: pointer;
-    top: 100%;
-    bottom: auto;
-    display: block;
-    padding: 5px 10px;
-    border-radius: 4px;
-    white-space: wrap;
-    word-break: normal;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    font-size: 16px;
-    z-index: -1;
-    margin: 0;
+	position: absolute;
+	cursor: pointer;
+	top: 100%;
+	bottom: auto;
+	display: block;
+	padding: 5px 10px;
+	border-radius: 0;
+	white-space: wrap;
+	word-break: normal;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s;
+	font-size: 16px;
+	z-index: -1;
+	margin: 0;
 
-    /* FIX 3: Constrain width using viewport-width (vw) units instead of percentages */
-    max-width: 95vw;
-    min-width: 100px;
-    width: fit-content;
+	/* FIX 3: Constrain width using viewport-width (vw) units instead of percentages */
+	max-width: 95vw;
+	min-width: 100px;
+	width: fit-content;
 }
 
 
 .ace_tooltip,
 #global-tooltip {
-    white-space: wrap;
-    word-break: normal;
+	white-space: wrap;
+	word-break: normal;
 }
 
 .ace_tooltip {
-    position: relative !important;
+	position: relative !important;
 }
 
 
 [data-tooltip]:not([popovertarget])::after {
-    content: attr(data-tooltip);
-    --tip: attr(data-tooltip);
+	content: attr(data-tooltip);
+	--tip: attr(data-tooltip);
 }
 
 [placeholder]:not([popovertarget]):not([type="checkbox"])::after {
-    content: attr(placeholder);
-    --tip: attr(placeholder);
+	content: attr(placeholder);
+	--tip: attr(placeholder);
 }
 
 [alt]:not([popovertarget])::after {
-    content: attr(alt);
-    --tip: attr(alt);
+	content: attr(alt);
+	--tip: attr(alt);
 }

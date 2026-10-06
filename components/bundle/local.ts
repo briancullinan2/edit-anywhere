@@ -54,11 +54,11 @@ const getBounceRegistry: Record<string, Record<string, DebounceToken>> = {
 
 // --- Core Database Utility Functions ---
 
-export async function getDB(dbName: string | null = null, dbVersion: number | null = null): Promise<IDBDatabase>
+export async function getDB(dbName: string | null = null, dbVersion: number | boolean | null = null): Promise<IDBDatabase>
 {
 	return new Promise((rs, rj) =>
 	{
-		const req = indexedDB.open(dbName || DB_NAME, dbVersion || DB_VERSION);
+		const req = indexedDB.open(dbName || DB_NAME, dbVersion === false ? undefined : (typeof dbVersion === 'number' ? dbVersion : DB_VERSION));
 		req.onsuccess = () => rs(req.result);
 		req.onerror = () =>
 		{
@@ -101,7 +101,7 @@ export async function needsInstall(dbName: string | null, expectedStores: Schema
 {
 	return new Promise((resolve) =>
 	{
-		const request = indexedDB.open(dbName || DB_NAME, DB_VERSION);
+		const request = indexedDB.open(dbName || DB_NAME);
 
 		request.onsuccess = (event: any) =>
 		{
@@ -212,31 +212,38 @@ localSelf.setupDatabase = setupDatabase;
 async function putRecordInternal(storeName: string, record: FileRecord, dbName: string | null = null): Promise<any>
 {
 	const filePath = dbName + '/' + record.path;
-	const newRecord: FileRecord = {
+	const newRecord: FileRecord = Object.assign({}, record, {
 		timestamp: record.timestamp,
 		mode: record.mode,
 		contents: record.contents,
 		path: record.path,
 		sha: record.sha,
 		parent: record.parent
-	};
+	});
 	const newerContents = FS.virtual[filePath]?.contents
 		?? FS.virtual[record.path]?.contents;
-	if(newerContents instanceof ArrayBuffer)
+	if(FS.virtual[filePath]?.timestamp
+		&& record.timestamp
+		&& FS.virtual[filePath]?.timestamp > record.timestamp)
 	{
-		newRecord.contents = new Uint8Array(newerContents);
+		if(newerContents instanceof ArrayBuffer)
+		{
+			newRecord.contents = new Uint8Array(newerContents);
+		}
+		else if(newerContents instanceof Uint8Array)
+		{
+			newRecord.contents = newerContents.slice(0);
+		}
 	}
-	else if(newerContents instanceof Uint8Array)
+
+	// in case temporary buffers are sent
+	if(newRecord.contents instanceof ArrayBuffer)
 	{
-		newRecord.contents = newerContents.slice(0);
+		newRecord.contents = new Uint8Array(newRecord.contents);
 	}
-	else if(record.contents instanceof ArrayBuffer)
+	else if(newRecord.contents instanceof Uint8Array)
 	{
-		newRecord.contents = new Uint8Array(record.contents);
-	}
-	else if(record.contents instanceof Uint8Array)
-	{
-		newRecord.contents = record.contents.slice(0);
+		newRecord.contents = newRecord.contents.slice(0);
 	}
 
 
@@ -251,7 +258,7 @@ async function putRecordInternal(storeName: string, record: FileRecord, dbName: 
 		debugger;
 	}
 
-	const db = await getDB(dbName);
+	const db = await getDB(dbName, false);
 	const tx = db.transaction(storeName, 'readwrite');
 	const store = tx.objectStore(storeName);
 
@@ -327,7 +334,7 @@ async function queryIndexInternal(
 	dbName: string | null = null
 ): Promise<any[]>
 {
-	const db = await getDB(dbName);
+	const db = await getDB(dbName, false);
 	const tx = db.transaction(storeName, 'readonly');
 	const store = tx.objectStore(storeName);
 	const index = store.index(indexName || (store.keyPath as string));
