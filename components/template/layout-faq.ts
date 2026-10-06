@@ -40,18 +40,18 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 3px; }
-      .item { border: 0.5px solid #cbd5e1; border-radius: 3px; margin-bottom: 3px; background: #fff; overflow: hidden; }
-      .item.open { border-color: #94a3b8; }
-      .q { background: #f8fafc; font-size: small; font-weight: 700; color: #0f172a; padding: 3px 5px; display: flex; align-items: center; gap: 4px; }
-      .badge { font-size: small; background: #e0f2fe; color: #0369a1; padding: 0 3px; border-radius: 2px; font-weight: 800; letter-spacing: 0.3px; }
-      .badge.warn { background: #fef3c7; color: #b45309; }
+      .item { border: 0.5px solid #cbd5e1; border-radius: 3px; margin-bottom: 3px; background: var(--ace-bg, #fff); overflow: hidden; }
+      .item.open { border-color: var(--ace-comment, #94a3b8); }
+      .q { background: var(--ace-bg, #f8fafc); font-size: small; font-weight: 700; color: var(--ace-foreground, #0f172a); padding: 3px 5px; display: flex; align-items: center; gap: 4px; }
+      .badge { font-size: small; background: var(--ace-bg, #e0f2fe); color: var(--ace-blue, #0369a1); padding: 0 3px; border-radius: 2px; font-weight: 800; letter-spacing: 0.3px; }
+      .badge.warn { background: var(--ace-bg, #fef3c7); color: #b45309; }
       .q-text { flex: 1; }
-      .toggle { font-size: medium; color: #0284c7; font-weight: 800; line-height: 1; }
-      .a { font-size: small; color: #475569; padding: 4px 5px; border-top: 0.5px solid #e2e8f0; line-height: 1.3; }
+      .toggle { font-size: medium; color: var(--ace-blue, #0284c7); font-weight: 800; line-height: 1; }
+      .a { font-size: small; color: var(--ace-comment, #475569); padding: 4px 5px; border-top: 0.5px solid #e2e8f0; line-height: 1.3; }
       .a p { margin: 0 0 3px 0; }
-      code { background: #f1f5f9; padding: 0 2px; border-radius: 2px; font-family: monospace; font-size: small; }
+      code { background: var(--ace-bg, #f1f5f9); padding: 0 2px; border-radius: 2px; font-family: monospace; font-size: small; }
       .meta { display: flex; gap: 4px; }
-      .tag { font-size: small; color: #64748b; background: #f1f5f9; padding: 0 3px; border-radius: 2px; }
+      .tag { font-size: small; color: var(--ace-comment, #64748b); background: var(--ace-bg, #f1f5f9); padding: 0 3px; border-radius: 2px; }
     `
 	},
 	{
@@ -94,16 +94,16 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
       .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid #e2e8f0; margin-bottom: 4px; padding-bottom: 2px; }
-      .title { font-size: small; font-weight: 800; color: #0f172a; letter-spacing: 0.4px; }
-      .time { font-size: small; color: #64748b; background: #f1f5f9; padding: 0 3px; border-radius: 2px; }
+      .title { font-size: small; font-weight: 800; color: var(--ace-foreground, #0f172a); letter-spacing: 0.4px; }
+      .time { font-size: small; color: var(--ace-comment, #64748b); background: var(--ace-bg, #f1f5f9); padding: 0 3px; border-radius: 2px; }
       .step { display: flex; gap: 5px; margin-bottom: 5px; align-items: flex-start; }
-      .num { background: #0f172a; color: #fff; font-size: small; font-weight: 800; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; line-height: 1; }
+      .num { background: var(--ace-foreground, #0f172a); color: var(--ace-bg, #fff); font-size: small; font-weight: 800; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; line-height: 1; }
       .content { flex: 1; }
-      strong { font-size: small; color: #0f172a; display: block; margin-bottom: 1px; }
+      strong { font-size: small; color: var(--ace-foreground, #0f172a); display: block; margin-bottom: 1px; }
       .tool { font-size: small; opacity: 0.7; }
-      p { font-size: small; color: #64748b; margin: 0 0 2px 0; line-height: 1.25; }
-      code { font-family: monospace; background: #f1f5f9; padding: 0 2px; border-radius: 2px; font-size: small; }
-      .result { font-size: small; color: #475569; background: #f8fafc; border-left: 2px solid #94a3b8; padding: 1px 4px; }
+      p { font-size: small; color: var(--ace-comment, #64748b); margin: 0 0 2px 0; line-height: 1.25; }
+      code { font-family: monospace; background: var(--ace-bg, #f1f5f9); padding: 0 2px; border-radius: 2px; font-size: small; }
+      .result { font-size: small; color: var(--ace-comment, #475569); background: var(--ace-bg, #f8fafc); border-left: 2px solid #94a3b8; padding: 1px 4px; }
       .result.ok { border-color: #22c55e; color: #166534; }
     `
 	},
@@ -137,12 +137,12 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
       .qa-matrix { display: flex; gap: 4px; }
-      .col { flex: 1; background: #f0fdf4; border: 0.5px solid #bbf7d0; border-radius: 3px; padding: 4px; }
+      .col { flex: 1; background: var(--ace-bg, #f0fdf4); border: 0.5px solid #bbf7d0; border-radius: 3px; padding: 4px; }
       .top { display: flex; justify-content: space-between; margin-bottom: 2px; }
-      .chip { font-size: small; background: #166534; color: #fff; padding: 0 3px; border-radius: 2px; font-weight: 800; }
+      .chip { font-size: small; background: #166534; color: var(--ace-bg, #fff); padding: 0 3px; border-radius: 2px; font-weight: 800; }
       .chip.alt { background: #0369a1; }
-      .code { font-size: small; font-family: monospace; color: #64748b; }
-      strong { font-size: small; color: #14532d; display: block; margin-bottom: 2px; }
+      .code { font-size: small; font-family: monospace; color: var(--ace-comment, #64748b); }
+      strong { font-size: small; color: var(--ace-foreground, #14532d); display: block; margin-bottom: 2px; }
       p { font-size: small; color: #15803d; margin: 0 0 3px 0; line-height: 1.25; }
       .foot { font-size: small; color: #4d7c0f; border-top: 0.5px solid #bbf7d0; padding-top: 2px; }
     `
@@ -192,12 +192,12 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
       * { font-family: monospace; box-sizing: border-box; width: 100%; border-collapse: collapse; }
       .legend { display: flex; gap: 6px; margin-bottom: 3px; font-size: small; }
       .sev { font-size: small; }
-      .sev.high { color: #dc2626; }
+      .sev.high { color: var(--ace-pink, #dc2626); }
       .sev.med { color: #d97706; }
-      .sev.low { color: #16a34a; }
-      th { background: #0f172a; color: #38bdf8; font-size: small; padding: 3px 4px; text-align: left; font-weight: 700; }
-      td { font-size: small; border-bottom: 0.5px solid #e2e8f0; padding: 3px 4px; color: #334155; line-height: 1.2; }
-      tr:nth-child(even) { background: #f8fafc; }
+      .sev.low { color: var(--ace-green, #16a34a); }
+      th { background: var(--ace-foreground, #0f172a); color: var(--ace-blue, #38bdf8); font-size: small; padding: 3px 4px; text-align: left; font-weight: 700; }
+      td { font-size: small; border-bottom: 0.5px solid #e2e8f0; padding: 3px 4px; color: var(--ace-foreground, #334155); line-height: 1.2; }
+      tr:nth-child(even) { background: var(--ace-bg, #f8fafc); }
     `
 	},
 	{
@@ -230,14 +230,14 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
       .icon-faq { display: flex; gap: 4px; }
-      .card { flex: 1; background: #fff; border: 0.5px solid #e2e8f0; border-radius: 3px; padding: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+      .card { flex: 1; background: var(--ace-bg, #fff); border: 0.5px solid #e2e8f0; border-radius: 3px; padding: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
       .icon-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-      .icon { font-size: medium; font-weight: 800; color: #0284c7; line-height: 1; }
-      .cat { font-size: small; background: #f1f5f9; color: #475569; padding: 0 3px; border-radius: 2px; font-weight: 700; }
-      h4 { font-size: small; margin: 0 0 2px 0; color: #0f172a; font-weight: 700; }
-      p { font-size: small; color: #64748b; margin: 0 0 3px 0; line-height: 1.25; }
-      code { font-family: monospace; background: #f1f5f9; padding: 0 2px; border-radius: 2px; }
-      .action { font-size: small; color: #0284c7; font-weight: 600; border-top: 0.5px solid #f1f5f9; padding-top: 2px; }
+      .icon { font-size: medium; font-weight: 800; color: var(--ace-blue, #0284c7); line-height: 1; }
+      .cat { font-size: small; background: var(--ace-bg, #f1f5f9); color: var(--ace-comment, #475569); padding: 0 3px; border-radius: 2px; font-weight: 700; }
+      h4 { font-size: small; margin: 0 0 2px 0; color: var(--ace-foreground, #0f172a); font-weight: 700; }
+      p { font-size: small; color: var(--ace-comment, #64748b); margin: 0 0 3px 0; line-height: 1.25; }
+      code { font-family: monospace; background: var(--ace-bg, #f1f5f9); padding: 0 2px; border-radius: 2px; }
+      .action { font-size: small; color: var(--ace-blue, #0284c7); font-weight: 600; border-top: 0.5px solid #f1f5f9; padding-top: 2px; }
     `
 	},
 	{
@@ -261,13 +261,13 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: monospace; box-sizing: border-box; text-align: center; padding: 3px; }
       .node { font-size: small; padding: 3px 6px; display: inline-block; border-radius: 3px; margin: 0 auto; }
-      .node.head { background: #0f172a; color: #fff; font-weight: 800; border: 0.5px solid #38bdf8; }
-      .node.alt { background: #0284c7; color: #fff; }
-      .node.action { background: #16a34a; color: #fff; font-weight: 700; }
-      .arrow { font-size: small; color: #64748b; margin: 2px 0; font-weight: 700; }
+      .node.head { background: var(--ace-foreground, #0f172a); color: var(--ace-bg, #fff); font-weight: 800; border: 0.5px solid #38bdf8; }
+      .node.alt { background: #0284c7; color: var(--ace-bg, #fff); }
+      .node.action { background: #16a34a; color: var(--ace-bg, #fff); font-weight: 700; }
+      .arrow { font-size: small; color: var(--ace-comment, #64748b); margin: 2px 0; font-weight: 700; }
       .branch { margin: 2px 0; }
-      .b-label { font-size: small; background: #f1f5f9; color: #475569; padding: 1px 4px; border-radius: 2px; }
-      .foot { font-size: small; color: #94a3b8; margin-top: 4px; border-top: 0.5px dashed #cbd5e1; padding-top: 2px; }
+      .b-label { font-size: small; background: var(--ace-bg, #f1f5f9); color: var(--ace-comment, #475569); padding: 1px 4px; border-radius: 2px; }
+      .foot { font-size: small; color: var(--ace-comment, #94a3b8); margin-top: 4px; border-top: 0.5px dashed #cbd5e1; padding-top: 2px; }
     `
 	},
 	{
@@ -299,17 +299,17 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
-      .s-bar { background: #f1f5f9; border: 0.5px solid #cbd5e1; font-size: small; color: #64748b; padding: 3px 6px; border-radius: 12px; margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
-      .icon { font-size: medium; color: #94a3b8; }
+      .s-bar { background: var(--ace-bg, #f1f5f9); border: 0.5px solid #cbd5e1; font-size: small; color: var(--ace-comment, #64748b); padding: 3px 6px; border-radius: 12px; margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+      .icon { font-size: medium; color: var(--ace-comment, #94a3b8); }
       .filters { display: flex; gap: 3px; margin-bottom: 4px; }
-      .chip { font-size: small; background: #f1f5f9; color: #64748b; padding: 1px 5px; border-radius: 8px; }
-      .chip.active { background: #0284c7; color: #fff; font-weight: 700; }
-      .res-item { background: #fff; border-left: 2px solid #0284c7; padding: 3px 5px; }
+      .chip { font-size: small; background: var(--ace-bg, #f1f5f9); color: var(--ace-comment, #64748b); padding: 1px 5px; border-radius: 8px; }
+      .chip.active { background: #0284c7; color: var(--ace-bg, #fff); font-weight: 700; }
+      .res-item { background: var(--ace-bg, #fff); border-left: 2px solid #0284c7; padding: 3px 5px; }
       .rank { display: flex; gap: 4px; align-items: center; margin-bottom: 1px; }
-      .score { font-size: small; font-weight: 800; color: #16a34a; }
-      .label { font-size: small; color: #94a3b8; }
-      .res { font-size: small; color: #0f172a; font-weight: 700; margin: 0 0 1px 0; }
-      .sub { font-size: small; color: #64748b; display: block; line-height: 1.2; }
+      .score { font-size: small; font-weight: 800; color: var(--ace-green, #16a34a); }
+      .label { font-size: small; color: var(--ace-comment, #94a3b8); }
+      .res { font-size: small; color: var(--ace-foreground, #0f172a); font-weight: 700; margin: 0 0 1px 0; }
+      .sub { font-size: small; color: var(--ace-comment, #64748b); display: block; line-height: 1.2; }
     `
 	},
 	{
@@ -330,13 +330,13 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 4px; }
-      .warn-box { background: #fef2f2; border-left: 3px solid #dc2626; border-radius: 0 3px 3px 0; }
+      .warn-box { background: var(--ace-bg, #fef2f2); border-left: 3px solid #dc2626; border-radius: 0 3px 3px 0; }
       .top { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
-      .icon { font-size: medium; color: #dc2626; line-height: 1; }
-      strong { font-size: small; color: #991b1b; font-weight: 800; flex: 1; }
-      .sev { font-size: small; background: #dc2626; color: #fff; padding: 0 4px; border-radius: 2px; font-weight: 800; }
+      .icon { font-size: medium; color: var(--ace-pink, #dc2626); line-height: 1; }
+      strong { font-size: small; color: var(--ace-pink, #991b1b); font-weight: 800; flex: 1; }
+      .sev { font-size: small; background: var(--ace-pink, #dc2626); color: var(--ace-bg, #fff); padding: 0 4px; border-radius: 2px; font-weight: 800; }
       p { font-size: small; color: #7f1d1d; margin: 0 0 3px 0; line-height: 1.3; }
-      .consequence { font-size: small; background: #fee2e2; color: #991b1b; padding: 2px 4px; border-radius: 2px; font-weight: 600; }
+      .consequence { font-size: small; background: var(--ace-bg, #fee2e2); color: var(--ace-pink, #991b1b); padding: 2px 4px; border-radius: 2px; font-weight: 600; }
     `
 	},
 	{
@@ -362,12 +362,12 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
       .tags { display: flex; gap: 3px; margin-bottom: 3px; align-items: center; }
-      .pill { background: #e0e7ff; color: #4338ca; font-size: small; font-weight: 800; padding: 1px 4px; border-radius: 3px; }
-      .pill.alt { background: #fce7f3; color: #be185d; }
-      .prio { font-size: small; background: #0f172a; color: #f8fafc; padding: 1px 4px; border-radius: 3px; font-weight: 800; margin-left: auto; }
-      .q { font-size: small; color: #1e1b4b; font-weight: 700; margin: 0 0 2px 0; }
-      .a { font-size: small; color: #475569; margin: 0 0 3px 0; line-height: 1.25; }
-      .foot { display: flex; justify-content: space-between; font-size: small; color: #94a3b8; border-top: 0.5px solid #e2e8f0; padding-top: 2px; }
+      .pill { background: var(--ace-bg, #e0e7ff); color: var(--ace-purple, #4338ca); font-size: small; font-weight: 800; padding: 1px 4px; border-radius: 3px; }
+      .pill.alt { background: var(--ace-bg, #fce7f3); color: #be185d; }
+      .prio { font-size: small; background: var(--ace-foreground, #0f172a); color: var(--ace-bg, #f8fafc); padding: 1px 4px; border-radius: 3px; font-weight: 800; margin-left: auto; }
+      .q { font-size: small; color: var(--ace-foreground, #1e1b4b); font-weight: 700; margin: 0 0 2px 0; }
+      .a { font-size: small; color: var(--ace-comment, #475569); margin: 0 0 3px 0; line-height: 1.25; }
+      .foot { display: flex; justify-content: space-between; font-size: small; color: var(--ace-comment, #94a3b8); border-top: 0.5px solid #e2e8f0; padding-top: 2px; }
     `
 	},
 	{
@@ -391,14 +391,14 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
       .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
-      .title { font-size: small; font-weight: 800; color: #0f172a; letter-spacing: 0.3px; }
-      .progress { font-size: small; background: #fef3c7; color: #b45309; padding: 0 4px; border-radius: 2px; font-weight: 700; }
-      .tools { font-size: small; color: #64748b; margin-bottom: 4px; }
-      code { font-family: monospace; background: #f1f5f9; padding: 0 2px; border-radius: 2px; }
-      label { display: flex; align-items: flex-start; gap: 4px; font-size: small; color: #334155; margin-bottom: 3px; line-height: 1.25; }
+      .title { font-size: small; font-weight: 800; color: var(--ace-foreground, #0f172a); letter-spacing: 0.3px; }
+      .progress { font-size: small; background: var(--ace-bg, #fef3c7); color: #b45309; padding: 0 4px; border-radius: 2px; font-weight: 700; }
+      .tools { font-size: small; color: var(--ace-comment, #64748b); margin-bottom: 4px; }
+      code { font-family: monospace; background: var(--ace-bg, #f1f5f9); padding: 0 2px; border-radius: 2px; }
+      label { display: flex; align-items: flex-start; gap: 4px; font-size: small; color: var(--ace-foreground, #334155); margin-bottom: 3px; line-height: 1.25; }
       label.done { color: #166534; }
       .box { font-size: medium; line-height: 1; flex-shrink: 0; }
-      .status { font-size: small; background: #fffbeb; color: #92400e; padding: 2px 4px; border-radius: 2px; margin-top: 2px; font-weight: 600; }
+      .status { font-size: small; background: var(--ace-bg, #fffbeb); color: var(--ace-pink, #92400e); padding: 2px 4px; border-radius: 2px; margin-top: 2px; font-weight: 600; }
     `
 	},
 	{
@@ -421,13 +421,13 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: monospace; box-sizing: border-box; padding: 3px; }
-      .term-box { background: #0f172a; border-radius: 3px; padding: 4px 5px; }
-      .header { display: flex; justify-content: space-between; font-size: small; color: #94a3b8; text-transform: uppercase; margin-bottom: 3px; border-bottom: 0.5px solid #334155; padding-bottom: 2px; }
-      .copy { background: #1e293b; color: #38bdf8; padding: 0 4px; border-radius: 2px; font-weight: 700; }
+      .term-box { background: var(--ace-foreground, #0f172a); border-radius: 3px; padding: 4px 5px; }
+      .header { display: flex; justify-content: space-between; font-size: small; color: var(--ace-comment, #94a3b8); text-transform: uppercase; margin-bottom: 3px; border-bottom: 0.5px solid #334155; padding-bottom: 2px; }
+      .copy { background: var(--ace-foreground, #1e293b); color: var(--ace-blue, #38bdf8); padding: 0 4px; border-radius: 2px; font-weight: 700; }
       .line { display: flex; gap: 4px; align-items: baseline; margin-bottom: 1px; }
-      .n { font-size: small; color: #475569; width: 10px; text-align: right; }
-      code { font-size: small; color: #4ade80; line-height: 1.4; }
-      .expect { font-size: small; color: #94a3b8; margin-top: 3px; border-top: 0.5px solid #334155; padding-top: 2px; }
+      .n { font-size: small; color: var(--ace-comment, #475569); width: 10px; text-align: right; }
+      code { font-size: small; color: var(--ace-green, #4ade80); line-height: 1.4; }
+      .expect { font-size: small; color: var(--ace-comment, #94a3b8); margin-top: 3px; border-top: 0.5px solid #334155; padding-top: 2px; }
       .note { font-size: small; color: #fbbf24; margin-top: 2px; }
     `
 	},
@@ -452,15 +452,15 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
-      .avatar-card { background: #f8fafc; border: 0.5px solid #e2e8f0; border-radius: 3px; padding: 4px; }
+      .avatar-card { background: var(--ace-bg, #f8fafc); border: 0.5px solid #e2e8f0; border-radius: 3px; padding: 4px; }
       .author { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
-      .avatar { width: 16px; height: 16px; background: #0284c7; color: #fff; border-radius: 50%; font-size: small; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .avatar { width: 16px; height: 16px; background: #0284c7; color: var(--ace-bg, #fff); border-radius: 50%; font-size: small; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
       .meta { flex: 1; }
-      .name { font-size: small; color: #0f172a; display: block; }
-      .role { font-size: small; color: #64748b; }
-      .stamp { font-size: small; background: #0f172a; color: #38bdf8; padding: 0 4px; border-radius: 2px; font-weight: 800; }
-      .quote { font-size: small; color: #334155; font-style: italic; margin: 0 0 3px 0; line-height: 1.3; }
-      .foot { font-size: small; color: #94a3b8; border-top: 0.5px solid #e2e8f0; padding-top: 2px; }
+      .name { font-size: small; color: var(--ace-foreground, #0f172a); display: block; }
+      .role { font-size: small; color: var(--ace-comment, #64748b); }
+      .stamp { font-size: small; background: var(--ace-foreground, #0f172a); color: var(--ace-blue, #38bdf8); padding: 0 4px; border-radius: 2px; font-weight: 800; }
+      .quote { font-size: small; color: var(--ace-foreground, #334155); font-style: italic; margin: 0 0 3px 0; line-height: 1.3; }
+      .foot { font-size: small; color: var(--ace-comment, #94a3b8); border-top: 0.5px solid #e2e8f0; padding-top: 2px; }
     `
 	},
 	{
@@ -483,14 +483,14 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
-      .status-banner { display: flex; align-items: center; gap: 5px; background: #fffbeb; border: 0.5px solid #fde68a; border-radius: 3px; padding: 4px; }
+      .status-banner { display: flex; align-items: center; gap: 5px; background: var(--ace-bg, #fffbeb); border: 0.5px solid #fde68a; border-radius: 3px; padding: 4px; }
       .indicator { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; box-shadow: 0 0 0 2px #fef3c7; }
       .text { flex: 1; }
       .top { display: flex; gap: 4px; align-items: center; margin-bottom: 1px; }
-      strong { font-size: small; color: #92400e; }
-      .region { font-size: small; background: #fef3c7; color: #b45309; padding: 0 3px; border-radius: 2px; font-weight: 700; }
+      strong { font-size: small; color: var(--ace-pink, #92400e); }
+      .region { font-size: small; background: var(--ace-bg, #fef3c7); color: #b45309; padding: 0 3px; border-radius: 2px; font-weight: 700; }
       p { font-size: small; color: #b45309; margin: 0; line-height: 1.2; }
-      .eta { font-size: small; background: #0f172a; color: #fbbf24; padding: 2px 5px; border-radius: 2px; font-weight: 800; white-space: nowrap; }
+      .eta { font-size: small; background: var(--ace-foreground, #0f172a); color: #fbbf24; padding: 2px 5px; border-radius: 2px; font-weight: 800; white-space: nowrap; }
     `
 	},
 	{
@@ -522,17 +522,17 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
       .dodont-container { display: flex; gap: 4px; }
       .box { flex: 1; padding: 4px; border-radius: 3px; }
-      .box.do { background: #f0fdf4; border: 0.5px solid #86efac; }
-      .box.dont { background: #fef2f2; border: 0.5px solid #fca5a5; }
+      .box.do { background: var(--ace-bg, #f0fdf4); border: 0.5px solid #86efac; }
+      .box.dont { background: var(--ace-bg, #fef2f2); border: 0.5px solid #fca5a5; }
       .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
       .label { font-size: small; font-weight: 800; }
       .do .label { color: #166534; }
-      .dont .label { color: #991b1b; }
+      .dont .label { color: var(--ace-pink, #991b1b); }
       .sev { font-size: small; padding: 0 3px; border-radius: 2px; font-weight: 700; }
-      .do .sev { background: #dcfce7; color: #166534; }
-      .dont .sev { background: #fee2e2; color: #991b1b; }
-      p { font-size: small; margin: 0 0 3px 0; color: #334155; line-height: 1.25; }
-      .why { font-size: small; color: #64748b; border-top: 0.5px solid rgba(0,0,0,0.06); padding-top: 2px; }
+      .do .sev { background: var(--ace-bg, #dcfce7); color: #166534; }
+      .dont .sev { background: var(--ace-bg, #fee2e2); color: var(--ace-pink, #991b1b); }
+      p { font-size: small; margin: 0 0 3px 0; color: var(--ace-foreground, #334155); line-height: 1.25; }
+      .why { font-size: small; color: var(--ace-comment, #64748b); border-top: 0.5px solid rgba(0,0,0,0.06); padding-top: 2px; }
     `
 	},
 	{
@@ -558,13 +558,13 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
       .tab-header { display: flex; gap: 2px; border-bottom: 0.5px solid #cbd5e1; }
-      .tab { font-size: small; padding: 2px 6px; color: #64748b; background: #f1f5f9; border-radius: 3px 3px 0 0; cursor: pointer; }
-      .tab.active { background: #0284c7; color: #fff; font-weight: 700; }
-      .tab-body { background: #fff; border: 0.5px solid #cbd5e1; border-top: none; padding: 5px; }
-      .plat { font-size: small; color: #94a3b8; margin-bottom: 3px; }
-      p { font-size: small; color: #334155; margin: 0 0 3px 0; }
-      code { display: block; font-family: monospace; background: #0f172a; color: #4ade80; padding: 3px 5px; border-radius: 2px; font-size: small; margin-bottom: 3px; }
-      .note { font-size: small; color: #b45309; background: #fffbeb; padding: 2px 4px; border-radius: 2px; }
+      .tab { font-size: small; padding: 2px 6px; color: var(--ace-comment, #64748b); background: var(--ace-bg, #f1f5f9); border-radius: 3px 3px 0 0; cursor: pointer; }
+      .tab.active { background: #0284c7; color: var(--ace-bg, #fff); font-weight: 700; }
+      .tab-body { background: var(--ace-bg, #fff); border: 0.5px solid #cbd5e1; border-top: none; padding: 5px; }
+      .plat { font-size: small; color: var(--ace-comment, #94a3b8); margin-bottom: 3px; }
+      p { font-size: small; color: var(--ace-foreground, #334155); margin: 0 0 3px 0; }
+      code { display: block; font-family: monospace; background: var(--ace-foreground, #0f172a); color: var(--ace-green, #4ade80); padding: 3px 5px; border-radius: 2px; font-size: small; margin-bottom: 3px; }
+      .note { font-size: small; color: #b45309; background: var(--ace-bg, #fffbeb); padding: 2px 4px; border-radius: 2px; }
     `
 	},
 	{
@@ -597,14 +597,14 @@ export const FAQ_TROUBLESHOOTING_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: sans-serif; box-sizing: border-box; padding: 3px; }
-      .res-links { background: #f8fafc; border: 0.5px solid #e2e8f0; border-radius: 3px; padding: 5px; }
-      h4 { font-size: small; color: #0f172a; margin: 0 0 4px 0; font-weight: 800; }
+      .res-links { background: var(--ace-bg, #f8fafc); border: 0.5px solid #e2e8f0; border-radius: 3px; padding: 5px; }
+      h4 { font-size: small; color: var(--ace-foreground, #0f172a); margin: 0 0 4px 0; font-weight: 800; }
       ul { margin: 0; padding: 0; list-style: none; }
       li { display: flex; align-items: center; gap: 4px; font-size: small; margin-bottom: 3px; }
       .icon { font-size: medium; line-height: 1; }
-      a { color: #0284c7; text-decoration: none; font-weight: 600; flex: 1; }
-      .code { font-size: small; font-family: monospace; color: #94a3b8; background: #f1f5f9; padding: 0 3px; border-radius: 2px; }
-      .foot { font-size: small; color: #94a3b8; border-top: 0.5px solid #e2e8f0; padding-top: 3px; margin-top: 2px; }
+      a { color: var(--ace-blue, #0284c7); text-decoration: none; font-weight: 600; flex: 1; }
+      .code { font-size: small; font-family: monospace; color: var(--ace-comment, #94a3b8); background: var(--ace-bg, #f1f5f9); padding: 0 3px; border-radius: 2px; }
+      .foot { font-size: small; color: var(--ace-comment, #94a3b8); border-top: 0.5px solid #e2e8f0; padding-top: 3px; margin-top: 2px; }
     `
 	}
 ];

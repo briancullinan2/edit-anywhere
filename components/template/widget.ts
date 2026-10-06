@@ -14,6 +14,7 @@ import
 import { TemplateMiniatureRenderer } from './widget-mini';
 import type { LuminoLayoutWindow } from '../bundle/lumino.d';
 import type { GlobalToolbarsWindow } from '../bundle/menu.d';
+import type { IconSize } from '../tools/widget';
 
 export * from './template';
 
@@ -229,6 +230,71 @@ export class LayoutWidget extends Widget
 		return card;
 	}
 
+
+
+
+	public setZoom(delta?: number)
+	{
+		if(delta === -1)
+		{
+			if(this.zoom === 'tiny')
+			{
+
+			} else if(this.zoom === 'small')
+			{
+				this.zoom = 'tiny';
+			} else if(this.zoom === 'medium')
+			{
+				this.zoom = 'small';
+			} else if(this.zoom === 'large')
+			{
+				this.zoom = 'medium';
+			} else if(this.zoom === 'huge')
+			{
+				this.zoom = 'large';
+			} else
+			{
+				this.zoom = 'medium';
+			}
+		}
+		else if(delta === 1)
+		{
+			if(this.zoom === 'tiny')
+			{
+				this.zoom = 'small';
+			} else if(this.zoom === 'small')
+			{
+				this.zoom = 'medium';
+			} else if(this.zoom === 'medium')
+			{
+				this.zoom = 'large';
+			} else if(this.zoom === 'large')
+			{
+				this.zoom = 'huge';
+			} else if(this.zoom === 'huge')
+			{
+
+			} else
+			{
+				this.zoom = 'medium';
+			}
+		} else if(delta === 0)
+		{
+			this.zoom = 'medium';
+		}
+
+		for(const c of this.node.classList)
+		{
+			if(c.startsWith('zoom-') && c !== this.zoom)
+			{
+				this.removeClass(c);
+			}
+		}
+		this.addClass('zoom-' + this.zoom);
+	}
+
+	private zoom: IconSize = 'medium';
+	public modules: Record<string, Record<string, Function>> = LOCAL_COMMANDS;
 }
 
 export class TemplateWidget extends LayoutWidget
@@ -238,6 +304,7 @@ export class TemplateWidget extends LayoutWidget
 		super();
 		this.title.label = title ?? 'Layouts';
 	}
+	public modules: Record<string, Record<string, Function>> = LOCAL_COMMANDS;
 }
 
 if(typeof module !== 'undefined' && module.exports)
@@ -247,3 +314,29 @@ if(typeof module !== 'undefined' && module.exports)
 		LayoutWidget
 	};
 }
+
+const LOCAL_COMMANDS: Record<string, Record<string, Function>> = {};
+
+
+LOCAL_COMMANDS['view/zoom'] = {
+	in: function ()
+	{
+		//const toolbar = fileviewSelf.ViewToolbar?.getInstance();
+		//toolbar?.toggleHiddenFiles();
+		const activeWidget = widgetSelf.lastInteractedWidget ?? widgetSelf.previousInteractedWidget;
+		if(typeof (activeWidget as any)?.setZoom === 'function')
+		{
+			(activeWidget as any).setZoom(1);
+		}
+	},
+	out: function ()
+	{
+		//const toolbar = fileviewSelf.ViewToolbar?.getInstance();
+		//toolbar?.toggleHiddenFiles();
+		const activeWidget = widgetSelf.lastInteractedWidget ?? widgetSelf.previousInteractedWidget;
+		if(typeof (activeWidget as any)?.setZoom === 'function')
+		{
+			(activeWidget as any).setZoom(-1);
+		}
+	}
+};

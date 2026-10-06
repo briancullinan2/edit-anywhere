@@ -90,3 +90,13 @@ By coupling **Client-Side Semantic Parsing** (DOM structure + text context analy
 * **Editor Core:** TinyMCE (Inline Mode) configured with minimal, non-disruptive toolbar plugins.
 * **Data Storage & Sync:** IndexedDB / LocalStorage for offline rule persistence and custom template storage.
 
+
+## 5 Project History
+
+### 10/5/2026
+
+![alt text](<Screenshot 2026-10-04 214018.png>) ![alt text](<Screenshot 2026-10-04 214028.png>) ![alt text](<Screenshot 2026-10-04 214222.png>) ![alt text](<Screenshot 2026-10-05 214126.png>)
+
+Basic concept is an editor for everything you've bookmarked.
+The main widget opens like a document editor.
+The other panels are for organizing the data in those documents.

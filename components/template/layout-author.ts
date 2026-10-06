@@ -29,13 +29,13 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: Georgia, serif; box-sizing: border-box; padding: 6px; }
-      .title-line { font-size: medium; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: #0f172a; margin: 0 0 2px 0; }
-      .subtitle { font-size: small; color: #475569; margin: 0 0 4px 0; line-height: 1.3; }
-      p { font-size: small; color: #334155; margin: 0 0 3px 0; line-height: 1.35; }
+      .title-line { font-size: medium; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--ace-foreground, #0f172a); margin: 0 0 2px 0; }
+      .subtitle { font-size: small; color: var(--ace-comment, #475569); margin: 0 0 4px 0; line-height: 1.3; }
+      p { font-size: small; color: var(--ace-foreground, #334155); margin: 0 0 3px 0; line-height: 1.35; }
       .legal-details { margin: 5px 0; padding-top: 4px; border-top: 0.5px solid #cbd5e1; }
       .legal-details p { margin: 1px 0; }
-      .usage { font-size: small; color: #64748b; font-style: italic; margin-top: 4px; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; }
-      .printer-string { font-family: monospace; font-size: small; letter-spacing: 2px; text-align: center; margin-top: 5px; color: #64748b; }
+      .usage { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; margin-top: 4px; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; }
+      .printer-string { font-family: monospace; font-size: small; letter-spacing: 2px; text-align: center; margin-top: 5px; color: var(--ace-comment, #64748b); }
     `
 	},
 	{
@@ -52,8 +52,8 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { box-sizing: border-box; padding: 8px; }
       .dedication-wrapper { text-align: center; font-family: Georgia, serif; }
-      .dedication-text { font-size: medium; font-style: italic; color: #1e293b; line-height: 1.5; margin: 0 0 6px 0; }
-      .instruction { font-size: small; color: #64748b; line-height: 1.35; margin: 0; max-width: 90%; margin-left: auto; margin-right: auto; border-top: 0.5px solid #e2e8f0; padding-top: 4px; }
+      .dedication-text { font-size: medium; font-style: italic; color: var(--ace-foreground, #1e293b); line-height: 1.5; margin: 0 0 6px 0; }
+      .instruction { font-size: small; color: var(--ace-comment, #64748b); line-height: 1.35; margin: 0; max-width: 90%; margin-left: auto; margin-right: auto; border-top: 0.5px solid #e2e8f0; padding-top: 4px; }
     `
 	},
 	{
@@ -72,10 +72,10 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { box-sizing: border-box; text-align: center; padding: 8px; }
       .half-title-block { font-family: Georgia, serif; }
-      .volume { font-size: small; letter-spacing: 1px; color: #64748b; font-family: sans-serif; display: block; margin-bottom: 3px; }
-      h1 { font-size: medium; letter-spacing: 1.5px; color: #0f172a; margin: 0 0 4px 0; font-weight: 400; }
-      .rule { width: 20px; height: 0.5px; background: #94a3b8; margin: 0 auto 6px auto; }
-      .note { font-size: small; color: #64748b; line-height: 1.35; margin: 0; max-width: 85%; margin-left: auto; margin-right: auto; }
+      .volume { font-size: small; letter-spacing: 1px; color: var(--ace-comment, #64748b); font-family: sans-serif; display: block; margin-bottom: 3px; }
+      h1 { font-size: medium; letter-spacing: 1.5px; color: var(--ace-foreground, #0f172a); margin: 0 0 4px 0; font-weight: 400; }
+      .rule { width: 20px; height: 0.5px; background: var(--ace-comment, #94a3b8); margin: 0 auto 6px auto; }
+      .note { font-size: small; color: var(--ace-comment, #64748b); line-height: 1.35; margin: 0; max-width: 85%; margin-left: auto; margin-right: auto; }
     `
 	},
 
@@ -111,9 +111,9 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
       * { font-family: Georgia, serif; box-sizing: border-box; padding: 4px; }
       .fn-divider { width: 25%; margin: 0 0 4px 0; border: none; border-top: 0.5px solid #475569; }
       .fn-list { padding-left: 0; margin: 0 0 4px 0; list-style: none; }
-      .fn-list li { font-size: small; line-height: 1.3; margin-bottom: 3px; text-indent: -8px; padding-left: 8px; color: #334155; }
+      .fn-list li { font-size: small; line-height: 1.3; margin-bottom: 3px; text-indent: -8px; padding-left: 8px; color: var(--ace-foreground, #334155); }
       .fn-num { font-weight: 700; margin-right: 2px; }
-      .instruction { font-size: small; color: #64748b; font-style: italic; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; margin: 0; line-height: 1.3; }
+      .instruction { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; margin: 0; line-height: 1.3; }
     `
 	},
 	{
@@ -130,10 +130,10 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 3px; }
-      .sidenote-block { border-left: 2px solid #0284c7; padding: 3px 0 3px 5px; background: #f0f9ff; }
-      .sidenote-label { font-size: small; font-weight: 800; color: #0369a1; letter-spacing: 0.3px; display: block; margin-bottom: 2px; }
-      .sidenote-block p { font-size: small; color: #334155; margin: 0 0 3px 0; line-height: 1.3; }
-      .usage { font-size: small; color: #64748b; font-style: italic; margin: 0; border-top: 0.5px solid #bae6fd; padding-top: 2px; }
+      .sidenote-block { border-left: 2px solid #0284c7; padding: 3px 0 3px 5px; background: var(--ace-bg, #f0f9ff); }
+      .sidenote-label { font-size: small; font-weight: 800; color: var(--ace-blue, #0369a1); letter-spacing: 0.3px; display: block; margin-bottom: 2px; }
+      .sidenote-block p { font-size: small; color: var(--ace-foreground, #334155); margin: 0 0 3px 0; line-height: 1.3; }
+      .usage { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; margin: 0; border-top: 0.5px solid #bae6fd; padding-top: 2px; }
     `
 	},
 
@@ -157,9 +157,9 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, serif; box-sizing: border-box; padding: 4px; }
       .biblio-entry { margin-bottom: 4px; }
-      .citation { font-size: small; margin: 0; line-height: 1.35; color: #0f172a; padding-left: 10px; text-indent: -10px; }
-      .doi { font-size: small; color: #2563eb; font-family: monospace; padding-left: 10px; display: block; margin-top: 1px; }
-      .instruction { font-size: small; color: #64748b; font-style: italic; margin: 4px 0 0 0; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; line-height: 1.3; }
+      .citation { font-size: small; margin: 0; line-height: 1.35; color: var(--ace-foreground, #0f172a); padding-left: 10px; text-indent: -10px; }
+      .doi { font-size: small; color: var(--ace-blue, #2563eb); font-family: monospace; padding-left: 10px; display: block; margin-top: 1px; }
+      .instruction { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; margin: 4px 0 0 0; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; line-height: 1.3; }
     `
 	},
 	{
@@ -180,11 +180,11 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 4px; }
-      .index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; background: #fafafa; border: 0.5px solid #e5e5e5; padding: 4px; margin-bottom: 4px; }
+      .index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; background: var(--ace-bg, #fafafa); border: 0.5px solid #e5e5e5; padding: 4px; margin-bottom: 4px; }
       .index-item { font-size: small; display: flex; justify-content: space-between; border-bottom: 0.5px dotted #ccc; padding-bottom: 1px; }
-      .term { color: #171717; font-weight: 500; }
-      .pages { color: #525252; font-family: monospace; }
-      .instruction { font-size: small; color: #64748b; font-style: italic; margin: 0; line-height: 1.3; }
+      .term { color: var(--ace-foreground, #171717); font-weight: 500; }
+      .pages { color: var(--ace-foreground, #525252); font-family: monospace; }
+      .instruction { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; margin: 0; line-height: 1.3; }
     `
 	},
 
@@ -209,12 +209,12 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 4px; }
-      .author-hero { display: flex; gap: 6px; background: #f1f5f9; border: 0.5px solid #cbd5e1; border-radius: 3px; }
-      .avatar-ph { width: 28px; height: 28px; background: #94a3b8; color: #fff; font-size: small; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
-      .bio h3 { font-size: medium; margin: 0 0 1px 0; color: #0f172a; }
-      .bio .role { font-size: small; color: #2563eb; font-weight: 700; display: block; margin-bottom: 3px; }
-      .bio p { font-size: small; color: #475569; margin: 0 0 3px 0; line-height: 1.3; }
-      .usage { font-size: small; color: #64748b; font-style: italic; border-top: 0.5px solid #e2e8f0; padding-top: 3px; }
+      .author-hero { display: flex; gap: 6px; background: var(--ace-bg, #f1f5f9); border: 0.5px solid #cbd5e1; border-radius: 3px; }
+      .avatar-ph { width: 28px; height: 28px; background: var(--ace-comment, #94a3b8); color: var(--ace-bg, #fff); font-size: small; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
+      .bio h3 { font-size: medium; margin: 0 0 1px 0; color: var(--ace-foreground, #0f172a); }
+      .bio .role { font-size: small; color: var(--ace-blue, #2563eb); font-weight: 700; display: block; margin-bottom: 3px; }
+      .bio p { font-size: small; color: var(--ace-comment, #475569); margin: 0 0 3px 0; line-height: 1.3; }
+      .usage { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; border-top: 0.5px solid #e2e8f0; padding-top: 3px; }
     `
 	},
 	{
@@ -231,9 +231,9 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, serif; box-sizing: border-box; padding: 4px; }
       .author-foot { border-top: 1px solid #0f172a; padding-top: 4px; }
-      .author-foot p { font-size: small; color: #111; font-style: italic; margin: 0 0 3px 0; line-height: 1.35; }
+      .author-foot p { font-size: small; color: var(--ace-foreground, #111); font-style: italic; margin: 0 0 3px 0; line-height: 1.35; }
       .author-foot strong { font-style: normal; font-family: system-ui, sans-serif; font-size: small; letter-spacing: 0.4px; }
-      .usage { font-size: small; color: #64748b; font-style: italic; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; }
+      .usage { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; border-top: 0.5px dashed #e2e8f0; padding-top: 3px; }
     `
 	},
 	{
@@ -251,11 +251,11 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 4px; }
-      .author-badge { background: #0f172a; color: #fff; text-align: center; border-radius: 3px; }
+      .author-badge { background: var(--ace-foreground, #0f172a); color: var(--ace-bg, #fff); text-align: center; border-radius: 3px; }
       .icon { font-size: medium; line-height: 1; margin-bottom: 2px; }
-      .author-badge h4 { font-size: small; color: #94a3b8; letter-spacing: 0.5px; margin: 0 0 1px 0; }
-      .author-badge p { font-size: medium; font-weight: 700; color: #38bdf8; margin: 0 0 3px 0; }
-      .note { font-size: small; color: #64748b; display: block; line-height: 1.25; border-top: 0.5px solid #334155; padding-top: 3px; }
+      .author-badge h4 { font-size: small; color: var(--ace-comment, #94a3b8); letter-spacing: 0.5px; margin: 0 0 1px 0; }
+      .author-badge p { font-size: medium; font-weight: 700; color: var(--ace-blue, #38bdf8); margin: 0 0 3px 0; }
+      .note { font-size: small; color: var(--ace-comment, #64748b); display: block; line-height: 1.25; border-top: 0.5px solid #334155; padding-top: 3px; }
     `
 	},
 	{
@@ -272,11 +272,11 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
       </div>
     `,
 		cssContent: `
-      * { font-family: Georgia, serif; box-sizing: border-box; padding: 5px; background: #fff; border-left: 2px solid #1e3a8a; }
-      h3 { font-size: medium; color: #1e3a8a; margin: 0 0 1px 0; }
-      .affil { font-size: small; font-weight: 700; color: #64748b; margin: 0 0 3px 0; }
-      .summary { font-size: small; color: #334155; margin: 0 0 3px 0; line-height: 1.3; }
-      .usage { font-size: small; color: #64748b; font-style: italic; margin: 0; border-top: 0.5px solid #e2e8f0; padding-top: 3px; line-height: 1.3; }
+      * { font-family: Georgia, serif; box-sizing: border-box; padding: 5px; background: var(--ace-bg, #fff); border-left: 2px solid #1e3a8a; }
+      h3 { font-size: medium; color: var(--ace-blue, #1e3a8a); margin: 0 0 1px 0; }
+      .affil { font-size: small; font-weight: 700; color: var(--ace-comment, #64748b); margin: 0 0 3px 0; }
+      .summary { font-size: small; color: var(--ace-foreground, #334155); margin: 0 0 3px 0; line-height: 1.3; }
+      .usage { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; margin: 0; border-top: 0.5px solid #e2e8f0; padding-top: 3px; line-height: 1.3; }
     `
 	},
 	{
@@ -302,11 +302,11 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 4px; }
       .co-authors { display: flex; gap: 4px; margin-bottom: 4px; }
-      .col { flex: 1; background: #f8fafc; border: 0.5px solid #e2e8f0; padding: 4px; border-radius: 2px; }
-      .col strong { font-size: medium; display: block; color: #0f172a; margin-bottom: 1px; }
-      .col span { font-size: small; color: #2563eb; font-weight: 600; display: block; margin-bottom: 2px; }
-      .col p { font-size: small; color: #475569; margin: 0; line-height: 1.25; }
-      .instruction { font-size: small; color: #64748b; font-style: italic; margin: 0; line-height: 1.3; }
+      .col { flex: 1; background: var(--ace-bg, #f8fafc); border: 0.5px solid #e2e8f0; padding: 4px; border-radius: 2px; }
+      .col strong { font-size: medium; display: block; color: var(--ace-foreground, #0f172a); margin-bottom: 1px; }
+      .col span { font-size: small; color: var(--ace-blue, #2563eb); font-weight: 600; display: block; margin-bottom: 2px; }
+      .col p { font-size: small; color: var(--ace-comment, #475569); margin: 0; line-height: 1.25; }
+      .instruction { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; margin: 0; line-height: 1.3; }
     `
 	},
 	{
@@ -323,11 +323,11 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
       </div>
     `,
 		cssContent: `
-      * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 5px; background: #18181b; color: #fff; border-radius: 3px; }
-      h4 { font-size: medium; color: #e4e4e7; margin: 0 0 1px 0; }
-      p { font-size: small; color: #a1a1aa; margin: 0 0 3px 0; }
+      * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 5px; background: var(--ace-foreground, #18181b); color: var(--ace-bg, #fff); border-radius: 3px; }
+      h4 { font-size: medium; color: var(--ace-bg, #e4e4e7); margin: 0 0 1px 0; }
+      p { font-size: small; color: var(--ace-bg, #a1a1aa); margin: 0 0 3px 0; }
       .handles { font-size: small; color: #22c55e; font-family: monospace; margin-bottom: 4px; }
-      .usage { font-size: small; color: #71717a; font-style: italic; border-top: 0.5px solid #3f3f46; padding-top: 3px; margin: 0; line-height: 1.3; }
+      .usage { font-size: small; color: var(--ace-comment, #71717a); font-style: italic; border-top: 0.5px solid #3f3f46; padding-top: 3px; margin: 0; line-height: 1.3; }
     `
 	},
 	{
@@ -345,11 +345,11 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
       </div>
     `,
 		cssContent: `
-      * { font-family: Georgia, serif; box-sizing: border-box; padding: 5px; background: #fdf6e3; }
+      * { font-family: Georgia, serif; box-sizing: border-box; padding: 5px; background: var(--ace-bg, #fdf6e3); }
       .jacket-bio { display: flex; gap: 3px; }
       .drop { font-size: large; font-weight: 700; color: #b58900; line-height: 0.85; margin: 0; flex-shrink: 0; }
-      .text p { font-size: small; color: #657b83; margin: 0 0 3px 0; line-height: 1.35; }
-      .usage { font-size: small; color: #93a1a1; font-style: italic; border-top: 0.5px solid #eee8d5; padding-top: 3px; }
+      .text p { font-size: small; color: var(--ace-comment, #657b83); margin: 0 0 3px 0; line-height: 1.35; }
+      .usage { font-size: small; color: var(--ace-bg, #93a1a1); font-style: italic; border-top: 0.5px solid #eee8d5; padding-top: 3px; }
     `
 	},
 	{
@@ -365,10 +365,10 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
       </div>
     `,
 		cssContent: `
-      * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 6px; background: #0284c7; color: #fff; text-align: center; border-radius: 2px; }
+      * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 6px; background: #0284c7; color: var(--ace-bg, #fff); text-align: center; border-radius: 2px; }
       p { font-size: medium; font-style: italic; margin: 0 0 3px 0; line-height: 1.35; }
       span { font-size: small; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 4px; }
-      .usage { font-size: small; color: #bae6fd; font-style: normal; margin: 0; border-top: 0.5px solid rgba(255,255,255,0.25); padding-top: 3px; line-height: 1.3; }
+      .usage { font-size: small; color: var(--ace-bg, #bae6fd); font-style: normal; margin: 0; border-top: 0.5px solid rgba(255,255,255,0.25); padding-top: 3px; line-height: 1.3; }
     `
 	},
 	{
@@ -385,10 +385,10 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 3px; }
-      .byline { display: flex; align-items: center; gap: 4px; font-size: small; color: #64748b; margin-bottom: 3px; }
+      .byline { display: flex; align-items: center; gap: 4px; font-size: small; color: var(--ace-comment, #64748b); margin-bottom: 3px; }
       .dot { width: 6px; height: 6px; background: #16a34a; border-radius: 50%; flex-shrink: 0; }
-      strong { color: #0f172a; }
-      .usage { font-size: small; color: #94a3b8; font-style: italic; margin: 0; line-height: 1.3; }
+      strong { color: var(--ace-foreground, #0f172a); }
+      .usage { font-size: small; color: var(--ace-comment, #94a3b8); font-style: italic; margin: 0; line-height: 1.3; }
     `
 	},
 	{
@@ -408,9 +408,9 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 4px; }
       .team-grid { display: flex; gap: 3px; margin-bottom: 4px; }
-      .member { flex: 1; background: #e2e8f0; font-size: small; text-align: center; padding: 4px 2px; font-weight: 700; color: #334155; border-radius: 2px; line-height: 1.25; }
-      .member span { font-weight: 400; color: #64748b; display: block; margin-top: 1px; }
-      .instruction { font-size: small; color: #64748b; font-style: italic; margin: 0; line-height: 1.3; }
+      .member { flex: 1; background: var(--ace-bg, #e2e8f0); font-size: small; text-align: center; padding: 4px 2px; font-weight: 700; color: var(--ace-foreground, #334155); border-radius: 2px; line-height: 1.25; }
+      .member span { font-weight: 400; color: var(--ace-comment, #64748b); display: block; margin-top: 1px; }
+      .instruction { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; margin: 0; line-height: 1.3; }
     `
 	},
 
@@ -431,10 +431,10 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: Georgia, serif; box-sizing: border-box; padding: 6px; }
-      .colophon-block { background: #fafafa; border: 0.5px solid #e2e8f0; text-align: center; border-radius: 2px; }
-      h5 { font-size: small; letter-spacing: 1px; color: #64748b; margin: 0 0 4px 0; font-weight: 700; }
-      p { font-size: small; color: #334155; margin: 0 0 4px 0; line-height: 1.35; }
-      .usage { font-size: small; color: #64748b; font-style: italic; border-top: 0.5px solid #e2e8f0; padding-top: 3px; margin: 0; }
+      .colophon-block { background: var(--ace-bg, #fafafa); border: 0.5px solid #e2e8f0; text-align: center; border-radius: 2px; }
+      h5 { font-size: small; letter-spacing: 1px; color: var(--ace-comment, #64748b); margin: 0 0 4px 0; font-weight: 700; }
+      p { font-size: small; color: var(--ace-foreground, #334155); margin: 0 0 4px 0; line-height: 1.35; }
+      .usage { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; border-top: 0.5px solid #e2e8f0; padding-top: 3px; margin: 0; }
     `
 	},
 	{
@@ -453,12 +453,12 @@ export const AUTHOR_LAYOUT_TEMPLATES: ITemplateItem[] = [
     `,
 		cssContent: `
       * { font-family: system-ui, sans-serif; box-sizing: border-box; padding: 6px; }
-      .promo-card { background: #0f172a; color: #fff; border-radius: 3px; }
-      .badge { font-size: small; color: #38bdf8; font-weight: 800; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
-      h4 { font-size: medium; margin: 0 0 3px 0; color: #f8fafc; }
-      p { font-size: small; color: #94a3b8; margin: 0 0 4px 0; line-height: 1.3; }
-      .cta { font-size: small; font-weight: 700; background: #2563eb; color: #fff; padding: 3px 6px; display: inline-block; border-radius: 2px; margin-bottom: 4px; }
-      .usage { font-size: small; color: #64748b; font-style: italic; border-top: 0.5px solid #334155; padding-top: 3px; margin: 0; line-height: 1.3; }
+      .promo-card { background: var(--ace-foreground, #0f172a); color: var(--ace-bg, #fff); border-radius: 3px; }
+      .badge { font-size: small; color: var(--ace-blue, #38bdf8); font-weight: 800; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
+      h4 { font-size: medium; margin: 0 0 3px 0; color: var(--ace-bg, #f8fafc); }
+      p { font-size: small; color: var(--ace-comment, #94a3b8); margin: 0 0 4px 0; line-height: 1.3; }
+      .cta { font-size: small; font-weight: 700; background: #2563eb; color: var(--ace-bg, #fff); padding: 3px 6px; display: inline-block; border-radius: 2px; margin-bottom: 4px; }
+      .usage { font-size: small; color: var(--ace-comment, #64748b); font-style: italic; border-top: 0.5px solid #334155; padding-top: 3px; margin: 0; line-height: 1.3; }
     `
 	}
 ];

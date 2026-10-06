@@ -235,7 +235,6 @@ export class TemplateCategoryWidget extends Widget
 	private _searchQuery: string = '';
 
 	private _sidebarEl!: HTMLElement;
-	private _galleryEl!: HTMLElement;
 	private _searchInputEl!: HTMLInputElement;
 
 	constructor(title?: string, categories: ITemplateCategory[] = [...DEFAULT_TEMPLATE_CATEGORIES, ...CONTENT_LAYOUT_TEMPLATE_CATEGORIES])
@@ -281,7 +280,6 @@ export class TemplateCategoryWidget extends Widget
         `;
 
 		this._sidebarEl = this.node.querySelector('.tcw-nav') as HTMLElement;
-		this._galleryEl = this.node.querySelector('.tcw-gallery') as HTMLElement;
 		this._searchInputEl = this.node.querySelector('.tcw-search-input') as HTMLInputElement;
 
 		this._searchInputEl.addEventListener('input', this._onSearchInput);
@@ -330,17 +328,17 @@ export class TemplateCategoryWidget extends Widget
 		});
 		this._renderSidebar();
 
-		if(category.id !== 'all')
-		{
-			const targetSection = this._galleryEl.querySelector(`#tcw-cat-${category.id}`);
-			if(targetSection)
-			{
-				targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-			}
-		} else
-		{
-			this._galleryEl.parentElement?.scrollTo({ top: 0, behavior: 'smooth' });
-		}
+		// if(category.id !== 'all')
+		// {
+		// 	const targetSection = this._galleryEl.querySelector(`#tcw-cat-${category.id}`);
+		// 	if(targetSection)
+		// 	{
+		// 		targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		// 	}
+		// } else
+		// {
+		// 	this._galleryEl.parentElement?.scrollTo({ top: 0, behavior: 'smooth' });
+		// }
 	}
 
 	private _getTotalTemplateCount(): number

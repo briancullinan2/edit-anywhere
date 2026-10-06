@@ -29,7 +29,7 @@ export class ToolsWidget extends Widget
 		widgetSelf.triggerPanelRoute?.(key, widgetSelf.mainDock);
 	};
 
-	modules: Record<string, Record<string, Function>> = LOCAL_COMMANDS;
+	public modules: Record<string, Record<string, Function>> = LOCAL_COMMANDS;
 	private _detailsContainer!: HTMLElement;
 	private _toolsSidebar?: ToolsSidebar;
 

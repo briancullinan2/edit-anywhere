@@ -38,16 +38,16 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, 'Times New Roman', serif; }
       .legal-hdr { text-align: center; border-bottom: 1.5px double #111; padding-bottom: 4px; margin-bottom: 5px; }
-      .brand-badge { font-family: sans-serif; background: #0d47a1; color: #fff; font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; display: inline-block; margin-bottom: 2px; }
-      .legal-hdr h1 { font-size: 8px; font-weight: bold; color: #111; letter-spacing: 0.3px; }
+      .brand-badge { font-family: sans-serif; background: #0d47a1; color: var(--ace-bg, #fff); font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; display: inline-block; margin-bottom: 2px; }
+      .legal-hdr h1 { font-size: 8px; font-weight: bold; color: var(--ace-foreground, #111); letter-spacing: 0.3px; }
       .subtitle { font-family: sans-serif; font-size: 3.5px; color: #666; margin-top: 1px; }
-      .preamble { font-size: 3.8px; font-style: italic; color: #333; margin-bottom: 4px; line-height: 1.35; }
-      .clause h2 { font-size: 4.5px; font-weight: bold; color: #000; border-bottom: 0.5px solid #ccc; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #222; line-height: 1.3; }
+      .preamble { font-size: 3.8px; font-style: italic; color: var(--ace-foreground, #333); margin-bottom: 4px; line-height: 1.35; }
+      .clause h2 { font-size: 4.5px; font-weight: bold; color: var(--ace-foreground, #000); border-bottom: 0.5px solid #ccc; margin: 3px 0 1px 0; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.3; }
       .sig-section { display: flex; gap: 8px; margin-top: 6px; }
       .sig-box { flex: 1; }
-      .line { width: 100%; height: 0.5px; background: #000; margin-bottom: 2px; }
-      .sig-box p { font-family: sans-serif; font-size: 3.2px; color: #555; text-align: center; }
+      .line { width: 100%; height: 0.5px; background: var(--ace-foreground, #000); margin-bottom: 2px; }
+      .sig-box p { font-family: sans-serif; font-size: 3.2px; color: var(--ace-foreground, #555); text-align: center; }
     `
 	},
 
@@ -78,11 +78,11 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, 'Times New Roman', serif; }
       .legal-hdr { border-bottom: 1px solid #1565c0; padding-bottom: 3px; margin-bottom: 5px; }
-      .brand-badge { font-family: sans-serif; background: #0d47a1; color: #fff; font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
-      .legal-hdr h1 { font-size: 8px; color: #0d47a1; font-weight: bold; margin-top: 2px; }
-      .notice-box { background: #e3f2fd; border-left: 2px solid #1565c0; padding: 3px; margin-bottom: 4px; font-size: 3.6px; color: #0d47a1; }
-      .clause h2 { font-size: 4.5px; font-weight: bold; color: #111; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #222; line-height: 1.3; }
+      .brand-badge { font-family: sans-serif; background: #0d47a1; color: var(--ace-bg, #fff); font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
+      .legal-hdr h1 { font-size: 8px; color: var(--ace-blue, #0d47a1); font-weight: bold; margin-top: 2px; }
+      .notice-box { background: var(--ace-bg, #e3f2fd); border-left: 2px solid #1565c0; padding: 3px; margin-bottom: 4px; font-size: 3.6px; color: var(--ace-blue, #0d47a1); }
+      .clause h2 { font-size: 4.5px; font-weight: bold; color: var(--ace-foreground, #111); margin: 3px 0 1px 0; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.3; }
     `
 	},
 
@@ -111,11 +111,11 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: system-ui, sans-serif; }
       .legal-hdr { border-bottom: 1px solid #37474f; padding-bottom: 3px; margin-bottom: 5px; }
-      .brand-badge { background: #37474f; color: #fff; font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
-      .legal-hdr h1 { font-size: 8.5px; font-weight: 700; color: #263238; margin-top: 2px; }
-      .updated { font-size: 3.5px; color: #78909c; }
-      .clause h2 { font-size: 4.5px; font-weight: 600; color: #37474f; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #333; line-height: 1.35; }
+      .brand-badge { background: var(--ace-foreground, #37474f); color: var(--ace-bg, #fff); font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
+      .legal-hdr h1 { font-size: 8.5px; font-weight: 700; color: var(--ace-foreground, #263238); margin-top: 2px; }
+      .updated { font-size: 3.5px; color: var(--ace-comment, #78909c); }
+      .clause h2 { font-size: 4.5px; font-weight: 600; color: var(--ace-foreground, #37474f); margin: 3px 0 1px 0; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #333); line-height: 1.35; }
     `
 	},
 
@@ -144,11 +144,11 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: system-ui, sans-serif; }
       .legal-hdr { border-bottom: 1.5px solid #263238; padding-bottom: 3px; margin-bottom: 5px; }
-      .brand-badge { background: #263238; color: #fff; font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
-      .legal-hdr h1 { font-size: 8.5px; font-weight: 700; color: #263238; margin-top: 2px; }
-      .intro { font-size: 3.8px; color: #546e7a; margin-bottom: 4px; }
-      .clause h2 { font-size: 4.5px; font-weight: 600; color: #263238; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #333; line-height: 1.35; }
+      .brand-badge { background: var(--ace-foreground, #263238); color: var(--ace-bg, #fff); font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
+      .legal-hdr h1 { font-size: 8.5px; font-weight: 700; color: var(--ace-foreground, #263238); margin-top: 2px; }
+      .intro { font-size: 3.8px; color: var(--ace-comment, #546e7a); margin-bottom: 4px; }
+      .clause h2 { font-size: 4.5px; font-weight: 600; color: var(--ace-foreground, #263238); margin: 3px 0 1px 0; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #333); line-height: 1.35; }
     `
 	},
 
@@ -176,10 +176,10 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, serif; }
       .legal-hdr { text-align: center; border-bottom: 1px solid #111; padding-bottom: 3px; margin-bottom: 5px; }
-      .badge { font-family: sans-serif; background: #d32f2f; color: #fff; font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
-      .legal-hdr h1 { font-size: 8px; font-weight: bold; color: #111; margin-top: 2px; }
-      .clause h2 { font-size: 4.5px; font-weight: bold; color: #111; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #222; line-height: 1.3; }
+      .badge { font-family: sans-serif; background: var(--ace-pink, #d32f2f); color: var(--ace-bg, #fff); font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
+      .legal-hdr h1 { font-size: 8px; font-weight: bold; color: var(--ace-foreground, #111); margin-top: 2px; }
+      .clause h2 { font-size: 4.5px; font-weight: bold; color: var(--ace-foreground, #111); margin: 3px 0 1px 0; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.3; }
     `
 	},
 
@@ -209,13 +209,13 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, serif; }
       .legal-hdr { text-align: center; margin-bottom: 5px; }
-      .legal-hdr h1 { font-size: 8.5px; font-weight: bold; letter-spacing: 0.5px; color: #000; }
+      .legal-hdr h1 { font-size: 8.5px; font-weight: bold; letter-spacing: 0.5px; color: var(--ace-foreground, #000); }
       .double-line { border-bottom: 1.5px double #000; margin-top: 2px; }
-      .grant { font-size: 3.8px; font-style: italic; color: #222; margin-bottom: 4px; line-height: 1.35; }
+      .grant { font-size: 3.8px; font-style: italic; color: var(--ace-foreground, #222); margin-bottom: 4px; line-height: 1.35; }
       .clause h2 { font-size: 4.5px; font-weight: bold; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #222; line-height: 1.3; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.3; }
       .witness-box { margin-top: 6px; border: 0.5px solid #000; padding: 4px; font-size: 3.5px; }
-      .w-line { width: 100%; height: 0.5px; background: #000; margin: 4px 0 1px 0; }
+      .w-line { width: 100%; height: 0.5px; background: var(--ace-foreground, #000); margin: 4px 0 1px 0; }
     `
 	},
 
@@ -243,10 +243,10 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, serif; }
       .legal-hdr { text-align: center; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 5px; }
-      .legal-hdr h1 { font-size: 8.5px; font-weight: bold; color: #000; }
-      .lease-parties { background: #f5f5f5; padding: 4px; border: 0.5px solid #ccc; font-size: 3.8px; margin-bottom: 4px; }
+      .legal-hdr h1 { font-size: 8.5px; font-weight: bold; color: var(--ace-foreground, #000); }
+      .lease-parties { background: var(--ace-bg, #f5f5f5); padding: 4px; border: 0.5px solid #ccc; font-size: 3.8px; margin-bottom: 4px; }
       .clause h2 { font-size: 4.5px; font-weight: bold; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #222; line-height: 1.3; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.3; }
     `
 	},
 
@@ -272,11 +272,11 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, serif; }
       .cd-hdr { border-bottom: 2px solid #b71c1c; padding-bottom: 3px; margin-bottom: 5px; }
-      .cd-hdr h1 { font-size: 8.5px; font-weight: bold; color: #b71c1c; }
-      .warning { font-family: sans-serif; font-size: 3.5px; color: #d32f2f; font-weight: bold; }
+      .cd-hdr h1 { font-size: 8.5px; font-weight: bold; color: var(--ace-pink, #b71c1c); }
+      .warning { font-family: sans-serif; font-size: 3.5px; color: var(--ace-pink, #d32f2f); font-weight: bold; }
       .salutation { font-size: 4px; font-weight: bold; margin-bottom: 3px; }
-      .clause h2 { font-size: 4.5px; font-weight: bold; color: #b71c1c; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #222; line-height: 1.35; }
+      .clause h2 { font-size: 4.5px; font-weight: bold; color: var(--ace-pink, #b71c1c); margin: 3px 0 1px 0; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.35; }
     `
 	},
 
@@ -304,7 +304,7 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
       * { font-family: Georgia, serif; }
       .legal-hdr { text-align: center; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 5px; }
       .legal-hdr h1 { font-size: 8.5px; font-weight: bold; }
-      p { font-size: 3.8px; color: #222; line-height: 1.3; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.3; }
       .item-table { width: 100%; border-collapse: collapse; font-size: 3.8px; margin: 4px 0; }
       .item-table th { border-bottom: 1px solid #000; text-align: left; padding: 2px; }
       .item-table td { border-bottom: 0.5px solid #ccc; padding: 2px; }
@@ -336,11 +336,11 @@ export const LEGAL_TEMPLATES: ITemplateItem[] = [
 		cssContent: `
       * { font-family: Georgia, serif; }
       .legal-hdr { text-align: center; border-bottom: 1.5px double #000; padding-bottom: 3px; margin-bottom: 5px; }
-      .badge { font-family: sans-serif; background: #d32f2f; color: #fff; font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
-      .legal-hdr h1 { font-size: 8px; font-weight: bold; color: #000; margin-top: 2px; }
-      .intro { font-size: 3.8px; font-style: italic; color: #333; margin-bottom: 4px; }
-      .clause h2 { font-size: 4.5px; font-weight: bold; color: #000; margin: 3px 0 1px 0; }
-      p { font-size: 3.8px; color: #222; line-height: 1.3; }
+      .badge { font-family: sans-serif; background: var(--ace-pink, #d32f2f); color: var(--ace-bg, #fff); font-size: 3.5px; font-weight: bold; padding: 1px 3px; border-radius: 1px; }
+      .legal-hdr h1 { font-size: 8px; font-weight: bold; color: var(--ace-foreground, #000); margin-top: 2px; }
+      .intro { font-size: 3.8px; font-style: italic; color: var(--ace-foreground, #333); margin-bottom: 4px; }
+      .clause h2 { font-size: 4.5px; font-weight: bold; color: var(--ace-foreground, #000); margin: 3px 0 1px 0; }
+      p { font-size: 3.8px; color: var(--ace-foreground, #222); line-height: 1.3; }
     `
 	}
 ];
